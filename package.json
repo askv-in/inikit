@@ -1,0 +1,47 @@
+{
+	"name": "inikit",
+	"version": "1.0.1",
+	"description": "",
+	"main": "./dist/index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "npx eslint . && tsc",
+		"dev": "tsx index.ts",
+		"prepare": "husky"
+	},
+	"bin": {
+		"inikit": "./dist/index.js"
+	},
+	"files": [
+		"dist"
+	],
+	"keywords": [],
+	"author": {
+		"username": "ajaykumarn3000",
+		"url": "https://ajaykumarn3000.github.io",
+		"name": "Ajaykumar Nadar",
+		"email": "ajaykumarn3000@gmail.com"
+	},
+	"license": "ISC",
+	"type": "module",
+	"devDependencies": {
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
+		"@eslint/js": "^9.27.0",
+		"@eslint/json": "^0.12.0",
+		"@eslint/markdown": "^6.4.0",
+		"@types/node": "^22.15.21",
+		"eslint": "^9.27.0",
+		"globals": "^16.2.0",
+		"husky": "^9.1.7",
+		"prettier": "^3.5.3",
+		"typescript": "^5.8.3",
+		"typescript-eslint": "^8.32.1"
+	},
+	"dependencies": {
+		"@clack/prompts": "^0.11.0",
+		"chalk": "^5.4.1",
+		"execa": "^9.5.3",
+		"tsx": "^4.19.4"
+	}
+}
