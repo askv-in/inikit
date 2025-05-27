@@ -93,7 +93,7 @@ const response = async () =>
 response()
 	.then(async res => {
 		const { projectName, typeScript, devTools } = res;
-		
+
 		const projectPath = path.resolve(process.cwd(), projectName);
 
 		const nextSpinner = p.spinner();
