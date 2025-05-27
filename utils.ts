@@ -1,6 +1,10 @@
 import { $ } from 'execa';
 import { copyFileSync, existsSync, cpSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const templateDir = path.join(__dirname, 'templates');
 
 export const titleCase = (str: string) => {
 	return str
@@ -18,7 +22,7 @@ export const createNextApp = async (
 		cwd: process.cwd(),
 	})`npx create-next-app@latest ${appName} ${
 		typeScript ? '--ts' : '--js'
-	} ${eslint ? '--eslint' : ''} --app --turbopack --use-npm --yes --disable-git`;
+	} ${eslint ? '--eslint' : '--no-eslint'} --app --turbopack --use-npm --yes --disable-git`;
 
 	return stdout;
 };
@@ -28,7 +32,7 @@ export const addPrettier = async (appPath: string) => {
 		cwd: appPath,
 	})`npm install -D prettier prettier-plugin-tailwindcss`;
 
-	cpSync(path.resolve('templates', 'prettier'), path.resolve(appPath), {
+	cpSync(path.join(templateDir, 'prettier'), path.resolve(appPath), {
 		force: true,
 		recursive: true,
 	});
@@ -53,13 +57,13 @@ export const addCommitlint = async (appPath: string) => {
 		cwd: appPath,
 	})`npx husky init`;
 
-	cpSync(path.resolve('templates', 'husky'), path.resolve(appPath, '.husky'), {
+	cpSync(path.join(templateDir, 'husky'), path.resolve(appPath, '.husky'), {
 		force: true,
 		recursive: true,
 	});
 
 	copyFileSync(
-		path.resolve('templates', 'commitlint', 'commitlint.config.js'),
+		path.join(templateDir, 'commitlint', 'commitlint.config.js'),
 		path.resolve(appPath, 'commitlint.config.js')
 	);
 

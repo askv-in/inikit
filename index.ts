@@ -44,7 +44,7 @@ const response = async () =>
 					message: `Select a ${cyan('framework')}`,
 					options: [
 						{ value: 'next', label: 'Next.js', hint: 'recommended' },
-						{ value: 'react', label: 'React' },
+						// { value: 'react', label: 'React' },
 					],
 				}),
 			typeScript: () =>
@@ -93,7 +93,7 @@ const response = async () =>
 response()
 	.then(async res => {
 		const { projectName, typeScript, devTools } = res;
-
+		
 		const projectPath = path.resolve(process.cwd(), projectName);
 
 		const nextSpinner = p.spinner();
@@ -101,17 +101,21 @@ response()
 		await createNextApp(projectName, typeScript, devTools.includes('eslint'));
 		nextSpinner.stop(`Created ${projectName} at ${projectPath}`);
 
-		const prettierSpinner = p.spinner();
-		prettierSpinner.start(`Adding prettier to the project`);
-		await addPrettier(projectPath);
-		prettierSpinner.stop(`Added prettier configuration`);
+		if (devTools.includes('prettier')) {
+			const prettierSpinner = p.spinner();
+			prettierSpinner.start(`Adding prettier to the project`);
+			await addPrettier(projectPath);
+			prettierSpinner.stop(`Added prettier configuration`);
+		}
 
 		await addGit(projectPath);
 
-		const commitlintSpinner = p.spinner();
-		commitlintSpinner.start(`Adding husky and commitlint to the project`);
-		await addCommitlint(projectPath);
-		commitlintSpinner.stop(`Added husky and commitlint configuration`);
+		if (devTools.includes('commitlint')) {
+			const commitlintSpinner = p.spinner();
+			commitlintSpinner.start(`Adding husky and commitlint to the project`);
+			await addCommitlint(projectPath);
+			commitlintSpinner.stop(`Added husky and commitlint configuration`);
+		}
 
 		p.outro(green('Project initialized successfully!'));
 		process.exit(0);

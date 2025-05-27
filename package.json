@@ -1,11 +1,12 @@
 {
 	"name": "inikit",
-	"version": "1.0.1",
-	"description": "",
+	"version": "1.0.0",
+	"description": "Inikit is a CLI tool that scaffolds modern Next.js projects with integrated support for TypeScript, ESLint, Prettier, and commitlint to enforce a robust development workflow.",
 	"main": "./dist/index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"build": "npx eslint . && tsc",
+		"build": "npx eslint . && npm run clean && tsc && cp -r templates dist/templates",
+		"clean": "rm -rf dist",
 		"dev": "tsx index.ts",
 		"prepare": "husky"
 	},
@@ -15,14 +16,25 @@
 	"files": [
 		"dist"
 	],
-	"keywords": [],
+	"keywords": [
+		"inikit",
+		"cli",
+		"nextjs",
+		"typescript",
+		"eslint",
+		"prettier",
+		"commitlint",
+		"scaffold",
+		"development",
+		"tools"
+	],
 	"author": {
 		"username": "ajaykumarn3000",
 		"url": "https://ajaykumarn3000.github.io",
 		"name": "Ajaykumar Nadar",
 		"email": "ajaykumarn3000@gmail.com"
 	},
-	"license": "ISC",
+	"license": "MIT",
 	"type": "module",
 	"devDependencies": {
 		"@commitlint/cli": "^19.8.1",
