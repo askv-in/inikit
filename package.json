@@ -1,6 +1,6 @@
 {
 	"name": "inikit",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Inikit is a CLI tool that scaffolds modern Next.js projects with integrated support for TypeScript, ESLint, Prettier, and commitlint to enforce a robust development workflow.",
 	"main": "./dist/index.js",
 	"scripts": {
@@ -8,7 +8,8 @@
 		"build": "npx eslint . && npm run clean && tsc && cp -r templates dist/templates",
 		"clean": "rm -rf dist",
 		"dev": "tsx index.ts",
-		"prepare": "husky"
+		"prepare": "husky",
+		"deploy": "npm run build && npm publish --access public"
 	},
 	"bin": {
 		"inikit": "./dist/index.js"
