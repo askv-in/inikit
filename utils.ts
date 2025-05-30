@@ -16,15 +16,49 @@ export const titleCase = (str: string) => {
 export const createNextApp = async (
 	appName: string,
 	typeScript: boolean,
-	eslint: boolean
+	tailwind: boolean = true
 ) => {
 	const { stdout } = await $({
 		cwd: process.cwd(),
 	})`npx create-next-app@latest ${appName} ${
 		typeScript ? '--ts' : '--js'
-	} ${eslint ? '--eslint' : '--no-eslint'} --app --turbopack --use-npm --yes --disable-git`;
+	} ${tailwind ? '--tailwind' : '--no-tailwind'} --eslint --app --turbopack --use-npm --yes --disable-git`;
 
 	return stdout;
+};
+
+export const createReactApp = async (appName: string, typeScript: boolean) => {
+	const { stdout } = await $({
+		cwd: process.cwd(),
+	})`npm create vite@latest ${appName} --- --template ${
+		typeScript ? 'react-ts' : 'react'
+	}`;
+
+	await $({
+		cwd: path.resolve(process.cwd(), appName),
+	})`npm install`;
+
+	return stdout;
+};
+
+export const addTailwind = async (appPath: string, typeScript: boolean) => {
+	await $({
+		cwd: appPath,
+	})`npm install tailwindcss @tailwindcss/vite`;
+
+	copyFileSync(
+		path.join(
+			templateDir,
+			'tailwind',
+			`vite.config.${typeScript ? 'ts' : 'js'}`
+		),
+		path.resolve(appPath, `vite.config.${typeScript ? 'ts' : 'js'}`)
+	);
+
+	copyFileSync(
+		path.join(templateDir, 'tailwind', 'index.css'),
+		path.resolve(appPath, 'src', 'index.css')
+	);
 };
 
 export const addPrettier = async (appPath: string) => {
@@ -63,8 +97,8 @@ export const addCommitlint = async (appPath: string) => {
 	});
 
 	copyFileSync(
-		path.join(templateDir, 'commitlint', 'commitlint.config.js'),
-		path.resolve(appPath, 'commitlint.config.js')
+		path.join(templateDir, 'commitlint', 'commitlint.config.cjs'),
+		path.resolve(appPath, 'commitlint.config.cjs')
 	);
 
 	await $({

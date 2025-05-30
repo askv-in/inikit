@@ -1,12 +1,15 @@
 {
 	"name": "inikit",
-	"version": "1.1.0",
-	"description": "Inikit is a CLI tool that scaffolds modern Next.js projects with integrated support for TypeScript, ESLint, Prettier, and commitlint to enforce a robust development workflow.",
+	"version": "1.2.0",
+	"description": "Best way to get started with Next.js and React project.",
 	"main": "./dist/index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "npx eslint . && npm run clean && tsc && cp -r templates dist/templates",
 		"clean": "rm -rf dist",
+		"lint": "eslint . ",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
 		"dev": "tsx index.ts",
 		"prepare": "husky",
 		"deploy": "npm run build && npm publish --access public"
@@ -17,6 +20,10 @@
 	"files": [
 		"dist"
 	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ajaykumarn3000/Inikit.git"
+	},
 	"keywords": [
 		"inikit",
 		"cli",

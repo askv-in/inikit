@@ -1,18 +1,26 @@
 # Inikit
 
-Inikit is a Node.js project designed to streamline your development workflow.
-
-## Features
-
-- Modular and scalable architecture
-- Easy setup and configuration
-- Built with modern JavaScript
+Best way to get started with Next.js and React project.
 
 ## Getting Started
 
 ```sh
 npx inikit@latest
 ```
+
+### Frameworks
+
+- Next.js
+
+- React
+
+### DevTools
+
+- TailwindCSS
+
+- Prettier
+
+- Commitlint, Husky
 
 ## Contributing
 

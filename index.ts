@@ -8,6 +8,8 @@ import {
 	addGit,
 	addPrettier,
 	createNextApp,
+	createReactApp,
+	addTailwind,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
@@ -43,8 +45,8 @@ const response = async () =>
 				p.select({
 					message: `Select a ${cyan('framework')}`,
 					options: [
-						{ value: 'next', label: 'Next.js', hint: 'recommended' },
-						// { value: 'react', label: 'React' },
+						{ value: 'next', label: 'Next.js', hint: 'using create-next-app' },
+						{ value: 'react', label: 'React', hint: 'using vite' },
 					],
 				}),
 			typeScript: () =>
@@ -59,15 +61,15 @@ const response = async () =>
 				return p.multiselect({
 					message: `Select ${cyan('dev tools')}`,
 					options: [
-						{ value: 'eslint', label: 'ESLint' },
+						{ value: 'tailwind', label: 'Tailwind CSS' },
 						{ value: 'prettier', label: 'Prettier' },
 						{
 							value: 'commitlint',
 							label: 'Husky',
-							hint: 'commitlint + husky + lint-staged',
+							hint: 'commitlint + husky',
 						},
 					],
-					initialValues: ['eslint', 'prettier', 'commitlint'],
+					initialValues: ['tailwind', 'prettier', 'commitlint'],
 				});
 			},
 			// libraries: () =>
@@ -92,14 +94,32 @@ const response = async () =>
 
 response()
 	.then(async res => {
-		const { projectName, typeScript, devTools } = res;
+		const { projectName, framework, typeScript, devTools } = res;
 
 		const projectPath = path.resolve(process.cwd(), projectName);
 
-		const nextSpinner = p.spinner();
-		nextSpinner.start(`Creating a new Next.js app in ${yellow(projectPath)}`);
-		await createNextApp(projectName, typeScript, devTools.includes('eslint'));
-		nextSpinner.stop(`Created ${projectName} at ${projectPath}`);
+		if (framework === 'next') {
+			const nextSpinner = p.spinner();
+			nextSpinner.start(`Creating a new Next.js app in ${yellow(projectPath)}`);
+			await createNextApp(
+				projectName,
+				typeScript,
+				devTools.includes('tailwind')
+			);
+			nextSpinner.stop(`Created ${projectName} at ${projectPath}`);
+		} else if (framework === 'react') {
+			const reactSpinner = p.spinner();
+			reactSpinner.start(`Creating a new React app in ${yellow(projectPath)}`);
+			await createReactApp(projectName, typeScript);
+			reactSpinner.stop(`Created ${projectName} at ${projectPath}`);
+
+			if (devTools.includes('tailwind')) {
+				const tailwindSpinner = p.spinner();
+				tailwindSpinner.start(`Adding Tailwind CSS to the project`);
+				await addTailwind(projectPath, typeScript);
+				tailwindSpinner.stop(`Added Tailwind CSS configuration`);
+			}
+		}
 
 		if (devTools.includes('prettier')) {
 			const prettierSpinner = p.spinner();
