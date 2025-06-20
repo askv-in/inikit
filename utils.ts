@@ -18,12 +18,16 @@ export const createNextApp = async (
 	typeScript: boolean,
 	tailwind: boolean = true
 ) => {
+	await $({
+		cwd: process.cwd(),
+	})`
+		npm install -g create-next-app@latest
+		`;
 	const { stdout } = await $({
 		cwd: process.cwd(),
-	})`npx create-next-app@latest ${appName} ${
+	})`npx create-next-app ${appName} ${
 		typeScript ? '--ts' : '--js'
 	} ${tailwind ? '--tailwind' : '--no-tailwind'} --eslint --app --turbopack --use-npm --yes --disable-git`;
-
 	return stdout;
 };
 
