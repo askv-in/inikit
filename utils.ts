@@ -39,7 +39,7 @@ export const createReactApp = async (appName: string, typeScript: boolean) => {
 		`;
 	const { stdout } = await $({
 		cwd: process.cwd(),
-	})`npm create vite@latest ${appName} --- --template ${
+	})`npx create-vite ${appName} --- --template ${
 		typeScript ? 'react-ts' : 'react'
 	}`;
 
