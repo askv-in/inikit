@@ -32,6 +32,11 @@ export const createNextApp = async (
 };
 
 export const createReactApp = async (appName: string, typeScript: boolean) => {
+	await $({
+		cwd: process.cwd(),
+	})`
+		npm install -g create-vite@latest
+		`;
 	const { stdout } = await $({
 		cwd: process.cwd(),
 	})`npm create vite@latest ${appName} --- --template ${

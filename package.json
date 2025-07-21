@@ -1,6 +1,6 @@
 {
 	"name": "inikit",
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"description": "Best way to get started with Next.js and React project.",
 	"main": "./dist/index.js",
 	"scripts": {
@@ -9,10 +9,11 @@
 		"clean": "rm -rf dist",
 		"lint": "eslint . ",
 		"lint:fix": "eslint . --fix",
+		"format:check": "prettier --check .",
 		"format": "prettier --write .",
 		"dev": "tsx index.ts",
-		"prepare": "husky",
-		"deploy": "npm run build && npm publish --access public"
+		"deploy": "npm run build && npm publish --access public",
+		"prepare": "husky"
 	},
 	"bin": {
 		"inikit": "./dist/index.js"
