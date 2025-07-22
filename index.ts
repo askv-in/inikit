@@ -14,14 +14,14 @@ import {
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
 
-const { cyan, green, yellow, gray } = chalkStderr;
+const { cyan, green, yellow } = chalkStderr;
 
 const response = async () =>
 	await p.group(
 		{
 			projectName: () => {
 				p.log.info(
-					`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}\n${gray(`- by ${packageJSON.author.name}`)}`
+					`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}}`
 				);
 				return p.text({
 					message: `Enter the ${cyan('project name')}`,
