@@ -4,10 +4,10 @@
 
 [![npm version](https://badge.fury.io/js/inikit.svg)](https://www.npmjs.com/package/inikit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub issues](https://img.shields.io/github/issues/ajaykumarn3000/Inikit)](https://github.com/ajaykumarn3000/Inikit/issues)
-[![GitHub stars](https://img.shields.io/github/stars/ajaykumarn3000/Inikit)](https://github.com/ajaykumarn3000/Inikit/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/ajaykumarn3000/Inikit)](https://github.com/ajaykumarn3000/Inikit/network)
-[![GitHub contributors](https://img.shields.io/github/contributors/ajaykumarn3000/Inikit)](https://github.com/ajaykumarn3000/Inikit/graphs/contributors)
+[![GitHub issues](https://img.shields.io/github/issues/askv-in/inikit)](https://github.com/askv-in/inikit/issues)
+[![GitHub stars](https://img.shields.io/github/stars/askv-in/inikit)](https://github.com/askv-in/inikit/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/askv-in/inikit)](https://github.com/askv-in/inikit/network)
+[![GitHub contributors](https://img.shields.io/github/contributors/askv-in/inikit)](https://github.com/askv-in/inikit/graphs/contributors)
 
 </div>
 
@@ -117,7 +117,7 @@ Want to contribute to Inikit or test changes locally? Here's how to get started:
 
 ```bash
 # Clone the repository
-git clone https://github.com/ajaykumarn3000/Inikit.git
+git clone https://github.com/askv-in/inikit.git
 cd Inikit
 
 # Install dependencies
@@ -182,19 +182,19 @@ We're here to help! If you encounter any issues or have questions:
 ### 🚨 Bug Reports
 
 - **GitHub Issues**:
-  [Report bugs here](https://github.com/ajaykumarn3000/Inikit/issues)
+  [Report bugs here](https://github.com/askv-in/inikit/issues)
 - Please use our bug report template for faster resolution
 
 ### 💡 Feature Requests
 
 - **GitHub Discussions**:
-  [Suggest new features](https://github.com/ajaykumarn3000/Inikit/discussions)
+  [Suggest new features](https://github.com/askv-in/inikit/discussions)
 - Help us understand your use case and requirements
 
 ### ❓ Questions and Support
 
 - **GitHub Discussions**:
-  [Ask questions here](https://github.com/ajaykumarn3000/Inikit/discussions)
+  [Ask questions here](https://github.com/askv-in/inikit/discussions)
 - **Documentation**: Check our README for common use cases
 - **Examples**: Look at the templates directory for configuration examples
 
@@ -248,11 +248,6 @@ Want to contribute to any of these? We'd love your help!
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 for details.
 
-## 👥 Author
-
-**Ajaykumar Nadar** - [Github](https://github.com/ajaykumarn3000) |
-[Portfolio](https://ajaykumarn3000.in)
-
 ## 🙏 Acknowledgments
 
 Inikit stands on the shoulders of giants. We're grateful to:
@@ -274,13 +269,13 @@ better and more accessible.
 
 <div align="center">
 
-**Made with ❤️ by [Ajaykumar Nadar](https://ajaykumarn3000.github.io)**
+**Made with ❤️ by [ASKV](https://github.com/askv-in/)**
 
 _Building tools that developers love to use_
 
-[⭐ Star on GitHub](https://github.com/ajaykumarn3000/Inikit) •
-[🐛 Report Bug](https://github.com/ajaykumarn3000/Inikit/issues) •
-[💡 Request Feature](https://github.com/ajaykumarn3000/Inikit/discussions) •
-[🤝 Contribute](https://github.com/ajaykumarn3000/Inikit/blob/main/CONTRIBUTING.md)
+[⭐ Star on GitHub](https://github.com/askv-in/inikit) •
+[🐛 Report Bug](https://github.com/askv-in/inikit/issues) •
+[💡 Request Feature](https://github.com/askv-in/inikit/discussions) •
+[🤝 Contribute](https://github.com/askv-in/inikit/blob/main/CONTRIBUTING.md)
 
 </div>

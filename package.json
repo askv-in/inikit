@@ -23,7 +23,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ajaykumarn3000/Inikit.git"
+		"url": "https://github.com/askv-in/inikit.git"
 	},
 	"keywords": [
 		"inikit",
@@ -39,7 +39,7 @@
 	],
 	"author": {
 		"username": "ajaykumarn3000",
-		"url": "https://ajaykumarn3000.github.io",
+		"url": "https://ajaykumarn3000.in",
 		"name": "Ajaykumar Nadar",
 		"email": "ajaykumarn3000@gmail.com"
 	},
