@@ -8,9 +8,9 @@ better for everyone.
 ## Ways to Contribute
 
 - 🐛 **Bug Reports**: Found a bug?
-  [Open an issue](https://github.com/ajaykumarn3000/Inikit/issues/new?template=bug_report.md)
+  [Open an issue](https://github.com/askv-in/inikit/issues/new?template=bug_report.md)
 - 💡 **Feature Requests**: Have an idea?
-  [Share it with us](https://github.com/ajaykumarn3000/Inikit/issues/new?template=feature_request.md)
+  [Share it with us](https://github.com/askv-in/inikit/issues/new?template=feature_request.md)
 - 📝 **Documentation**: Help improve our documentation
 - 🔧 **Code**: Submit pull requests with improvements or new features
 - 🧪 **Testing**: Help test new features or report edge cases
