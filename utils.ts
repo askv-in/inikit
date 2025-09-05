@@ -1,3 +1,4 @@
+import * as p from '@clack/prompts';
 import { $ } from 'execa';
 import { copyFileSync, existsSync, cpSync } from 'node:fs';
 import path from 'node:path';
@@ -13,6 +14,17 @@ export const titleCase = (str: string) => {
 		.join(' ');
 };
 
+export const runTaskAnimation = async (
+	startMessage: string,
+	stopMessage: string,
+	callback: () => Promise<void>
+) => {
+	const nextSpinner = p.spinner();
+	nextSpinner.start(startMessage);
+	await callback();
+	nextSpinner.stop(stopMessage);
+};
+
 export const createNextApp = async (
 	appName: string,
 	typeScript: boolean,
@@ -23,12 +35,11 @@ export const createNextApp = async (
 	})`
 		npm install -g create-next-app@latest
 		`;
-	const { stdout } = await $({
+	await $({
 		cwd: process.cwd(),
 	})`npx create-next-app ${appName} ${
 		typeScript ? '--ts' : '--js'
 	} ${tailwind ? '--tailwind' : '--no-tailwind'} --eslint --app --turbopack --use-npm --yes --disable-git`;
-	return stdout;
 };
 
 export const createReactApp = async (appName: string, typeScript: boolean) => {
@@ -37,7 +48,7 @@ export const createReactApp = async (appName: string, typeScript: boolean) => {
 	})`
 		npm install -g create-vite@latest
 		`;
-	const { stdout } = await $({
+	await $({
 		cwd: process.cwd(),
 	})`npx create-vite ${appName} --- --template ${
 		typeScript ? 'react-ts' : 'react'
@@ -46,8 +57,6 @@ export const createReactApp = async (appName: string, typeScript: boolean) => {
 	await $({
 		cwd: path.resolve(process.cwd(), appName),
 	})`npm install`;
-
-	return stdout;
 };
 
 export const addTailwind = async (appPath: string, typeScript: boolean) => {
@@ -83,7 +92,8 @@ export const addPrettier = async (appPath: string) => {
 
 export const addGit = async (appPath: string) => {
 	if (existsSync(path.resolve(appPath, '.git'))) {
-		return 'Git already initialized';
+		// return 'Git already initialized';
+		return;
 	}
 
 	await $({

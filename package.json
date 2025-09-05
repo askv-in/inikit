@@ -4,7 +4,6 @@
 	"description": "Best way to get started with Next.js and React project.",
 	"main": "./dist/index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "npx eslint . && npm run clean && tsc && cp -r templates dist/templates",
 		"clean": "rm -rf dist",
 		"lint": "eslint . ",

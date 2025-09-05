@@ -35,6 +35,7 @@ export default defineConfig([
 			'**/build/**',
 			'**/out/**',
 			'**/public/**',
+			'**/templates/**',
 		],
 	},
 ]);
