@@ -4,7 +4,6 @@
 	"description": "Best way to get started with Next.js and React project.",
 	"main": "./dist/index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "npx eslint . && npm run clean && tsc && cp -r templates dist/templates",
 		"clean": "rm -rf dist",
 		"lint": "eslint . ",
@@ -62,6 +61,7 @@
 	"dependencies": {
 		"@clack/prompts": "^0.11.0",
 		"chalk": "^5.4.1",
+		"commander": "^14.0.0",
 		"execa": "^9.5.3",
 		"tsx": "^4.19.4"
 	}

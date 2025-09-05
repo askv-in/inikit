@@ -3,146 +3,172 @@
 import * as p from '@clack/prompts';
 import { chalkStderr } from 'chalk';
 import {
-	titleCase,
 	addCommitlint,
 	addGit,
 	addPrettier,
 	createNextApp,
 	createReactApp,
 	addTailwind,
+	titleCase,
+	runTaskAnimation,
+	validateProjectName,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
+import {
+	getDevtools,
+	getFramework,
+	getProjectName,
+	getTypeScript,
+} from './tli.js';
+import { Command } from 'commander';
 
-const { cyan, green, yellow } = chalkStderr;
+const { green, yellow } = chalkStderr;
 
-const response = async () =>
-	await p.group(
-		{
-			projectName: () => {
-				p.log.info(
-					`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}}`
-				);
-				return p.text({
-					message: `Enter the ${cyan('project name')}`,
-					placeholder: 'my-app',
-					defaultValue: 'my-app',
-					validate(input: string) {
-						if (input) {
-							if (input.includes(' '))
-								return 'Project name cannot contain spaces';
-							if (input.toLowerCase() !== input)
-								return 'Project name must be lowercase';
-							if (input.startsWith('./'))
-								return 'Project name cannot start with "./"';
-							if (/[^a-zA-Z0-9-_]/.test(input))
-								return 'Project name can only contain letters, numbers, dashes, and underscores';
-						}
-					},
-				});
-			},
-			framework: () =>
-				p.select({
-					message: `Select a ${cyan('framework')}`,
-					options: [
-						{ value: 'next', label: 'Next.js', hint: 'using create-next-app' },
-						{ value: 'react', label: 'React', hint: 'using vite' },
-					],
-				}),
-			typeScript: () =>
-				p.confirm({
-					message: `Do you want to use ${cyan('TypeScript?')}`,
-					initialValue: true, // Yes
-				}),
-			devTools: () => {
-				p.note(
-					'Press space to select/deselect, enter to confirm\nYou can select multiple options'
-				);
-				return p.multiselect({
-					message: `Select ${cyan('dev tools')}`,
-					options: [
-						{ value: 'tailwind', label: 'Tailwind CSS' },
-						{ value: 'prettier', label: 'Prettier' },
-						{
-							value: 'commitlint',
-							label: 'Husky',
-							hint: 'commitlint + husky',
-						},
-					],
-					initialValues: ['tailwind', 'prettier', 'commitlint'],
-					required: false,
-				});
-			},
-			// libraries: () =>
-			// 	p.multiselect({
-			// 		message: `Select ${cyan('libraries')}`,
-			// 		options: [
-			// 			{ value: 'shadcn', label: 'Shadcn/ui' },
-			// 			{ value: 'prisma', label: 'Prisma' },
-			// 			{ value: 'authjs', label: 'Auth.js' },
-			// 		],
-			// 	}),
-		},
-		{
-			// On Cancel callback that wraps the group
-			// So if the user cancels one of the prompts in the group this function will be called
-			onCancel: () => {
-				p.cancel('Operation cancelled.');
-				process.exit(0);
-			},
-		}
+const handleSigTerm = () => process.exit(0);
+
+process.on('SIGINT', handleSigTerm);
+process.on('SIGTERM', handleSigTerm);
+
+async function main() {
+	const program = new Command(packageJSON.name)
+		.version(
+			packageJSON.version,
+			'-v, --version',
+			'Output the current version of Inikit.'
+		)
+		.argument('[directory]')
+		.usage('[directory] [options]')
+		.helpOption('-h, --help', 'Display this help message.')
+		.option('--next, --nextjs', 'Initialize as a Next.js project.')
+		.option('--react, --reactjs', 'Initialize as a React project.')
+		.option(
+			'--ts, --typescript',
+			'Initialize as a TypeScript project. (default)'
+		)
+		.option('--js, --javascript', 'Initialize as a JavaScript project.')
+		.option(
+			'--tailwind, --tailwindcss',
+			'Initialize with Tailwind CSS config. (default)'
+		)
+		.option('--eslint', 'Initialize with ESLint config. (default)')
+		.option('--prettier', 'Initialize with Prettier config. (default)')
+		.option(
+			'--commitlint',
+			'Initialize with Commitlint + Husky config. (default)'
+		)
+		.option('--no-git', 'Skip git initialization.')
+		.option('--tools', 'Use recommended dev tools. (default)')
+		.option(`--no-tools`, 'Skip all dev tools setup.')
+		.allowUnknownOption()
+		.parse(process.argv);
+
+	const opts = program.opts(); // Get options
+	const { args } = program; // Get positional arguments (ProjectName)
+
+	if (opts.typescript && opts.javascript) {
+		p.log.error(
+			'Cannot use both --typescript and --javascript flags together.'
+		);
+		process.exit(1);
+	}
+	if (opts.nextjs && opts.reactjs) {
+		p.log.error('Cannot use both --nextjs and --reactjs flags together.');
+		process.exit(1);
+	}
+
+	p.log.info(
+		`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}`
 	);
 
-response()
-	.then(async res => {
-		const { projectName, framework, typeScript, devTools } = res;
-
-		const projectPath = path.resolve(process.cwd(), projectName);
-
-		if (framework === 'next') {
-			const nextSpinner = p.spinner();
-			nextSpinner.start(`Creating a new Next.js app in ${yellow(projectPath)}`);
-			await createNextApp(
-				projectName,
-				typeScript,
-				devTools.includes('tailwind')
-			);
-			nextSpinner.stop(`Created ${projectName} at ${projectPath}`);
-		} else if (framework === 'react') {
-			const reactSpinner = p.spinner();
-			reactSpinner.start(`Creating a new React app in ${yellow(projectPath)}`);
-			await createReactApp(projectName, typeScript);
-			reactSpinner.stop(`Created ${projectName} at ${projectPath}`);
-
-			if (devTools.includes('tailwind')) {
-				const tailwindSpinner = p.spinner();
-				tailwindSpinner.start(`Adding Tailwind CSS to the project`);
-				await addTailwind(projectPath, typeScript);
-				tailwindSpinner.stop(`Added Tailwind CSS configuration`);
-			}
-		}
-
-		if (devTools.includes('prettier')) {
-			const prettierSpinner = p.spinner();
-			prettierSpinner.start(`Adding prettier to the project`);
-			await addPrettier(projectPath);
-			prettierSpinner.stop(`Added prettier configuration`);
-		}
-
-		await addGit(projectPath);
-
-		if (devTools.includes('commitlint')) {
-			const commitlintSpinner = p.spinner();
-			commitlintSpinner.start(`Adding husky and commitlint to the project`);
-			await addCommitlint(projectPath);
-			commitlintSpinner.stop(`Added husky and commitlint configuration`);
-		}
-
-		p.outro(green('Project initialized successfully!'));
-		process.exit(0);
-	})
-	.catch(err => {
-		console.error(err);
-		p.outro('An error occurred: ' + err.message);
+	const projectNameError = validateProjectName(args[0] ?? 'my-app');
+	if (typeof projectNameError === 'string') {
+		p.log.error(projectNameError);
 		process.exit(1);
-	});
+	}
+
+	const projectName = args[0] ?? (await getProjectName());
+
+	const framework = opts.nextjs
+		? 'next'
+		: opts.reactjs
+			? 'react'
+			: await getFramework();
+
+	const typeScript = opts.typescript
+		? true
+		: opts.javascript
+			? false
+			: await getTypeScript();
+
+	let devTools: Set<string> = new Set<string>();
+	if (opts.tools === true) {
+		devTools.add('tailwind');
+		devTools.add('prettier');
+		devTools.add('commitlint');
+	} else if (opts.tailwindcss || opts.prettier || opts.commitlint) {
+		if (opts.tailwindcss) devTools.add('tailwind');
+		if (opts.prettier) devTools.add('prettier');
+		if (opts.commitlint) devTools.add('commitlint');
+	} else if (opts.tools === false) {
+		// No dev tools
+	} else {
+		devTools = await getDevtools();
+	}
+
+	const projectPath = path.resolve(process.cwd(), projectName);
+
+	if (framework === 'next') {
+		await runTaskAnimation(
+			`Creating a new Next.js app in ${yellow(projectPath)}`,
+			`Created ${projectName} at ${projectPath}`,
+			() => createNextApp(projectName, typeScript, devTools.has('tailwind'))
+		);
+	} else if (framework === 'react') {
+		await runTaskAnimation(
+			`Creating a new React app in ${yellow(projectPath)}`,
+			`Created ${projectName} at ${projectPath}`,
+			() => createReactApp(projectName, typeScript)
+		);
+		if (devTools.has('tailwind')) {
+			await runTaskAnimation(
+				`Adding Tailwind CSS to the project`,
+				`Added Tailwind CSS configuration`,
+				() => addTailwind(projectPath, typeScript)
+			);
+		}
+	}
+
+	if (devTools.has('prettier')) {
+		await runTaskAnimation(
+			`Adding prettier to the project`,
+			`Added prettier configuration`,
+			() => addPrettier(projectPath)
+		);
+	}
+
+	if (devTools.has('commitlint')) {
+		await runTaskAnimation(
+			`Adding husky and commitlint to the project`,
+			`Added husky and commitlint configuration`,
+			() => addCommitlint(projectPath)
+		);
+	}
+
+	if (opts.git !== false) {
+		await runTaskAnimation(
+			`Initializing git repository`,
+			`Initialized git repository`,
+			() => addGit(projectPath)
+		);
+	}
+
+	p.outro(green(`Project initialized successfully! Happy coding!`));
+	process.exit(0);
+}
+
+main().catch(err => {
+	console.error(err);
+	p.outro('An error occurred: ' + err.message);
+	process.exit(1);
+});
