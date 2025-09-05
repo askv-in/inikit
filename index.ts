@@ -16,84 +16,76 @@ import packageJSON from './package.json' with { type: 'json' };
 
 const { cyan, green, yellow } = chalkStderr;
 
-const response = async () =>
-	await p.group(
-		{
-			projectName: () => {
-				p.log.info(
-					`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}}`
-				);
-				return p.text({
-					message: `Enter the ${cyan('project name')}`,
-					placeholder: 'my-app',
-					defaultValue: 'my-app',
-					validate(input: string) {
-						if (input) {
-							if (input.includes(' '))
-								return 'Project name cannot contain spaces';
-							if (input.toLowerCase() !== input)
-								return 'Project name must be lowercase';
-							if (input.startsWith('./'))
-								return 'Project name cannot start with "./"';
-							if (/[^a-zA-Z0-9-_]/.test(input))
-								return 'Project name can only contain letters, numbers, dashes, and underscores';
-						}
-					},
-				});
-			},
-			framework: () =>
-				p.select({
-					message: `Select a ${cyan('framework')}`,
-					options: [
-						{ value: 'next', label: 'Next.js', hint: 'using create-next-app' },
-						{ value: 'react', label: 'React', hint: 'using vite' },
-					],
-				}),
-			typeScript: () =>
-				p.confirm({
-					message: `Do you want to use ${cyan('TypeScript?')}`,
-					initialValue: true, // Yes
-				}),
-			devTools: () => {
-				p.note(
-					'Press space to select/deselect, enter to confirm\nYou can select multiple options'
-				);
-				return p.multiselect({
-					message: `Select ${cyan('dev tools')}`,
-					options: [
-						{ value: 'tailwind', label: 'Tailwind CSS' },
-						{ value: 'prettier', label: 'Prettier' },
-						{
-							value: 'commitlint',
-							label: 'Husky',
-							hint: 'commitlint + husky',
-						},
-					],
-					initialValues: ['tailwind', 'prettier', 'commitlint'],
-					required: false,
-				});
-			},
-			// libraries: () =>
-			// 	p.multiselect({
-			// 		message: `Select ${cyan('libraries')}`,
-			// 		options: [
-			// 			{ value: 'shadcn', label: 'Shadcn/ui' },
-			// 			{ value: 'prisma', label: 'Prisma' },
-			// 			{ value: 'authjs', label: 'Auth.js' },
-			// 		],
-			// 	}),
-		},
-		{
-			// On Cancel callback that wraps the group
-			// So if the user cancels one of the prompts in the group this function will be called
-			onCancel: () => {
-				p.cancel('Operation cancelled.');
-				process.exit(0);
-			},
-		}
-	);
+p.log.info(
+	`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}}`
+);
 
-response()
+async function getUserInput() {
+	const projectName = await p.text({
+		message: `Enter the ${cyan('project name')}`,
+		placeholder: 'my-app',
+		defaultValue: 'my-app',
+		validate(input: string) {
+			if (input && input !== '.' && input !== './') {
+				if (input.includes(' ')) return 'Project name cannot contain spaces';
+				if (input.toLowerCase() !== input)
+					return 'Project name must be lowercase';
+				if (input.startsWith('./'))
+					return 'Project name cannot start with "./"';
+				if (/[^a-zA-Z0-9-_]/.test(input))
+					return 'Project name can only contain letters, numbers, dashes, and underscores';
+			}
+		},
+	});
+
+	if (p.isCancel(projectName)) {
+		p.cancel('Operation cancelled.');
+		return process.exit(0);
+	}
+
+	const framework = await p.select({
+		message: `Select a ${cyan('framework')}`,
+		options: [
+			{ value: 'next', label: 'Next.js', hint: 'using create-next-app' },
+			{ value: 'react', label: 'React', hint: 'using vite' },
+		],
+	});
+
+	if (p.isCancel(framework)) {
+		p.cancel('Operation cancelled.');
+		return process.exit(0);
+	}
+
+	const typeScript = await p.confirm({
+		message: `Do you want to use ${cyan('TypeScript?')}`,
+		initialValue: true, // Yes
+	});
+
+	if (p.isCancel(typeScript)) {
+		p.cancel('Operation cancelled.');
+		return process.exit(0);
+	}
+
+	const devTools = await p.multiselect({
+		message: `Select ${cyan('dev tools')}`,
+		options: [
+			{ value: 'tailwind', label: 'Tailwind CSS' },
+			{ value: 'prettier', label: 'Prettier' },
+			{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
+		],
+		initialValues: ['tailwind', 'prettier', 'commitlint'],
+		required: false,
+	});
+
+	if (p.isCancel(devTools)) {
+		p.cancel('Operation cancelled.');
+		return process.exit(0);
+	}
+
+	return { projectName, framework, typeScript, devTools };
+}
+
+getUserInput()
 	.then(async res => {
 		const { projectName, framework, typeScript, devTools } = res;
 
