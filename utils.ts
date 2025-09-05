@@ -7,6 +7,16 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const templateDir = path.join(__dirname, 'templates');
 
+export const validateProjectName = (input: string) => {
+	if (input && input !== '.' && input !== './') {
+		if (input.includes(' ')) return 'Project name cannot contain spaces';
+		if (input.toLowerCase() !== input) return 'Project name must be lowercase';
+		if (input.startsWith('./')) return 'Project name cannot start with "./"';
+		if (/[^a-zA-Z0-9-_]/.test(input))
+			return 'Project name can only contain letters, numbers, dashes, and underscores';
+	}
+};
+
 export const titleCase = (str: string) => {
 	return str
 		.split(' ')

@@ -1,5 +1,6 @@
 import * as p from '@clack/prompts';
 import { chalkStderr } from 'chalk';
+import { validateProjectName } from './utils.js';
 const { cyan } = chalkStderr;
 
 export async function getProjectName() {
@@ -7,17 +8,7 @@ export async function getProjectName() {
 		message: `Enter the ${cyan('project name')}`,
 		placeholder: 'my-app',
 		defaultValue: 'my-app',
-		validate(input: string) {
-			if (input && input !== '.' && input !== './') {
-				if (input.includes(' ')) return 'Project name cannot contain spaces';
-				if (input.toLowerCase() !== input)
-					return 'Project name must be lowercase';
-				if (input.startsWith('./'))
-					return 'Project name cannot start with "./"';
-				if (/[^a-zA-Z0-9-_]/.test(input))
-					return 'Project name can only contain letters, numbers, dashes, and underscores';
-			}
-		},
+		validate: validateProjectName,
 	});
 
 	if (p.isCancel(projectName)) {
@@ -72,5 +63,5 @@ export async function getDevtools() {
 		p.cancel('Operation cancelled.');
 		return process.exit(0);
 	}
-	return devTools;
+	return new Set(devTools);
 }

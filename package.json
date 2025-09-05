@@ -61,6 +61,7 @@
 	"dependencies": {
 		"@clack/prompts": "^0.11.0",
 		"chalk": "^5.4.1",
+		"commander": "^14.0.0",
 		"execa": "^9.5.3",
 		"tsx": "^4.19.4"
 	}
