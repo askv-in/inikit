@@ -83,7 +83,9 @@ inikit
 
 ## 📋 Usage
 
-When you run Inikit, you'll be prompted to:
+### Interactive (Prompts)
+
+When you run Inikit without flags, you'll be prompted to:
 
 1. **Project Name**: Enter your project name (lowercase, no spaces)
 2. **Framework**: Choose between Next.js or React
@@ -102,6 +104,50 @@ Welcome to Inikit v1.2.4
 
 ✅ Project initialized successfully!
 ```
+
+### Non-Interactive (Flags)
+
+Skip all prompts by providing options via flags. This is CI-friendly and great
+for automation.
+
+Examples:
+
+```bash
+# Next.js + TypeScript with recommended tools (Tailwind, Prettier, Commitlint)
+npx inikit my-app --next --ts --tools
+
+# React + JavaScript with no dev tools and no git init
+npx inikit my-app --react --js --no-tools --no-git
+
+# React + TypeScript with only Tailwind and Prettier
+npx inikit my-app --react --ts --tailwind --prettier
+```
+
+Note:
+
+- Do not combine framework flags together: use either `--next` or `--react`.
+- Do not combine language flags together: use either `--ts` or `--js`.
+- If you don't pass `--tools`, you can choose tools individually with
+  `--tailwind`, `--prettier`, and/or `--commitlint`.
+
+#### CLI Options
+
+| Flag                          | Description                                                 |
+| ----------------------------- | ----------------------------------------------------------- |
+| `[directory]`                 | Target directory or project name.                           |
+| `--next`, `--nextjs`          | Initialize a Next.js project.                               |
+| `--react`, `--reactjs`        | Initialize a React (Vite) project.                          |
+| `--ts`, `--typescript`        | Use TypeScript.                                             |
+| `--js`, `--javascript`        | Use JavaScript.                                             |
+| `--tailwind`, `--tailwindcss` | Add Tailwind CSS config.                                    |
+| `--eslint`                    | Add ESLint config.                                          |
+| `--prettier`                  | Add Prettier config.                                        |
+| `--commitlint`                | Add Commitlint + Husky config.                              |
+| `--tools`                     | Use recommended dev tools (Tailwind, Prettier, Commitlint). |
+| `--no-tools`                  | Skip all dev tools setup.                                   |
+| `--no-git`                    | Skip Git initialization.                                    |
+| `-v`, `--version`             | Print version.                                              |
+| `-h`, `--help`                | Show help.                                                  |
 
 ## 🏗️ Local Development
 
