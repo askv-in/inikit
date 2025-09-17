@@ -24,6 +24,7 @@ export async function getFramework() {
 		options: [
 			{ value: 'next', label: 'Next.js', hint: 'using create-next-app' },
 			{ value: 'react', label: 'React', hint: 'using vite' },
+			{ value: 'express', label: 'Express', hint: 'Express.js template' },
 		],
 	});
 
