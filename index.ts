@@ -14,6 +14,7 @@ import {
 	validateProjectName,
 	addShadcnConfigForVite,
 	addShadcnUi,
+	addPrisma,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
@@ -63,6 +64,10 @@ async function main() {
 			'--shadcn',
 			'Initialize with Shadcn UI config. (typescript required).'
 		)
+		.option(
+			'--prisma',
+			'Initialize with Prisma ORM config. (nextjs only, typescript required).'
+		)
 		.option('--no-git', 'Skip git initialization.')
 		.option('--tools', 'Use recommended dev tools.')
 		.option(`--no-tools`, 'Skip all dev tools setup.')
@@ -84,6 +89,10 @@ async function main() {
 	}
 	if (opts.shadcn && !opts.typescript) {
 		p.log.error(`--shadcn requires --typescript to be set.`);
+		process.exit(1);
+	}
+	if (opts.prisma && (!opts.nextjs || !opts.typescript)) {
+		p.log.error(`--prisma requires both --nextjs and --typescript to be set.`);
 		process.exit(1);
 	}
 
@@ -119,11 +128,15 @@ async function main() {
 		if (opts.shadcn) {
 			devTools.add('shadcn');
 		}
+		if (opts.prisma) {
+			devTools.add('prisma');
+		}
 	} else if (
 		opts.tailwindcss ||
 		opts.prettier ||
 		opts.commitlint ||
-		opts.shadcn
+		opts.shadcn ||
+		opts.prisma
 	) {
 		if (opts.tailwindcss) devTools.add('tailwind');
 		if (opts.prettier) devTools.add('prettier');
@@ -132,14 +145,13 @@ async function main() {
 			devTools.add('shadcn');
 			devTools.add('tailwind');
 		}
+		if (opts.prisma) devTools.add('prisma');
 	} else if (opts.tools === false) {
 		// No dev tools
 	} else {
-		devTools = await getDevtools(typeScript);
+		devTools = await getDevtools(framework, typeScript);
 		if (devTools.has('shadcn')) devTools.add('tailwind');
 	}
-
-	console.log(devTools);
 
 	const projectPath = path.resolve(process.cwd(), projectName);
 
@@ -190,6 +202,14 @@ async function main() {
 				}
 				await addShadcnUi(projectPath);
 			}
+		);
+	}
+
+	if (typeScript && devTools.has('prisma')) {
+		await runTaskAnimation(
+			`Adding Prisma ORM to the project`,
+			`Added Prisma ORM configuration`,
+			() => addPrisma(projectPath)
 		);
 	}
 

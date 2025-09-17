@@ -149,3 +149,17 @@ export const addShadcnUi = async (appPath: string) => {
 		cwd: appPath,
 	})`npx shadcn init -d -y -s`;
 };
+
+export const addPrisma = async (appPath: string) => {
+	await $({
+		cwd: appPath,
+	})`npm install -D prisma`;
+	await $({
+		cwd: appPath,
+	})`npm install @prisma/client`;
+
+	cpSync(path.join(templateDir, 'prisma'), path.resolve(appPath), {
+		force: true,
+		recursive: true,
+	});
+};
