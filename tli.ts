@@ -47,14 +47,21 @@ export async function getTypeScript() {
 	return typeScript;
 }
 
-export async function getDevtools() {
+export async function getDevtools(typescript: boolean) {
 	const devTools = await p.multiselect({
 		message: `Select ${cyan('dev tools')}`,
-		options: [
-			{ value: 'tailwind', label: 'Tailwind CSS' },
-			{ value: 'prettier', label: 'Prettier' },
-			{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
-		],
+		options: typescript
+			? [
+					{ value: 'tailwind', label: 'Tailwind CSS' },
+					{ value: 'prettier', label: 'Prettier' },
+					{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
+					{ value: 'shadcn', label: 'Shadcn UI' },
+				]
+			: [
+					{ value: 'tailwind', label: 'Tailwind CSS' },
+					{ value: 'prettier', label: 'Prettier' },
+					{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
+				],
 		initialValues: ['tailwind', 'prettier', 'commitlint'],
 		required: false,
 	});
