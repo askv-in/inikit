@@ -42,9 +42,8 @@ export const createNextApp = async (
 ) => {
 	await $({
 		cwd: process.cwd(),
-	})`
-		npm install -g create-next-app@latest
-		`;
+	})`npm install -g create-next-app@latest`;
+
 	await $({
 		cwd: process.cwd(),
 	})`npx create-next-app ${appName} ${
@@ -133,4 +132,20 @@ export const addCommitlint = async (appPath: string) => {
 	await $({
 		cwd: appPath,
 	})`npm run prepare`;
+};
+
+export const addShadcnConfigForVite = (appPath: string) => {
+	cpSync(path.join(templateDir, 'shadcn-vite'), path.resolve(appPath), {
+		force: true,
+		recursive: true,
+	});
+};
+
+export const addShadcnUi = async (appPath: string) => {
+	await $({
+		cwd: appPath,
+	})`npm install -g shadcn@latest`;
+	await $({
+		cwd: appPath,
+	})`npx shadcn init -d -y -s`;
 };

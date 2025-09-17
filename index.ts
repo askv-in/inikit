@@ -12,6 +12,8 @@ import {
 	titleCase,
 	runTaskAnimation,
 	validateProjectName,
+	addShadcnConfigForVite,
+	addShadcnUi,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
@@ -57,8 +59,12 @@ async function main() {
 			'--commitlint',
 			'Initialize with Commitlint + Husky config. (default)'
 		)
+		.option(
+			'--shadcn',
+			'Initialize with Shadcn UI config. (typescript required).'
+		)
 		.option('--no-git', 'Skip git initialization.')
-		.option('--tools', 'Use recommended dev tools. (default)')
+		.option('--tools', 'Use recommended dev tools.')
 		.option(`--no-tools`, 'Skip all dev tools setup.')
 		.allowUnknownOption()
 		.parse(process.argv);
@@ -74,6 +80,10 @@ async function main() {
 	}
 	if (opts.nextjs && opts.reactjs) {
 		p.log.error('Cannot use both --nextjs and --reactjs flags together.');
+		process.exit(1);
+	}
+	if (opts.shadcn && !opts.typescript) {
+		p.log.error(`--shadcn requires --typescript to be set.`);
 		process.exit(1);
 	}
 
@@ -106,15 +116,30 @@ async function main() {
 		devTools.add('tailwind');
 		devTools.add('prettier');
 		devTools.add('commitlint');
-	} else if (opts.tailwindcss || opts.prettier || opts.commitlint) {
+		if (opts.shadcn) {
+			devTools.add('shadcn');
+		}
+	} else if (
+		opts.tailwindcss ||
+		opts.prettier ||
+		opts.commitlint ||
+		opts.shadcn
+	) {
 		if (opts.tailwindcss) devTools.add('tailwind');
 		if (opts.prettier) devTools.add('prettier');
 		if (opts.commitlint) devTools.add('commitlint');
+		if (opts.shadcn) {
+			devTools.add('shadcn');
+			devTools.add('tailwind');
+		}
 	} else if (opts.tools === false) {
 		// No dev tools
 	} else {
-		devTools = await getDevtools();
+		devTools = await getDevtools(typeScript);
+		if (devTools.has('shadcn')) devTools.add('tailwind');
 	}
+
+	console.log(devTools);
 
 	const projectPath = path.resolve(process.cwd(), projectName);
 
@@ -152,6 +177,19 @@ async function main() {
 			`Adding husky and commitlint to the project`,
 			`Added husky and commitlint configuration`,
 			() => addCommitlint(projectPath)
+		);
+	}
+
+	if (typeScript && devTools.has('shadcn')) {
+		await runTaskAnimation(
+			`Adding shadcn UI to the project`,
+			`Added shadcn UI configuration`,
+			async () => {
+				if (framework === 'react') {
+					addShadcnConfigForVite(projectPath);
+				}
+				await addShadcnUi(projectPath);
+			}
 		);
 	}
 
