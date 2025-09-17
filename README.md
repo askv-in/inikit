@@ -80,6 +80,7 @@ inikit
 - **Prettier** - Opinionated code formatter
 - **ESLint** - JavaScript/TypeScript linter
 - **Commitlint + Husky** - Enforce conventional commit messages
+- **Shadcn UI** - Beautiful, customizable UI components for (TypeScript only)
 
 ## 📋 Usage
 
@@ -90,7 +91,8 @@ When you run Inikit without flags, you'll be prompted to:
 1. **Project Name**: Enter your project name (lowercase, no spaces)
 2. **Framework**: Choose between Next.js or React
 3. **TypeScript**: Enable/disable TypeScript support
-4. **Dev Tools**: Select from Tailwind CSS, Prettier, and Husky+Commitlint
+4. **Dev Tools**: Select from Tailwind CSS, Prettier, Husky+Commitlint, and
+   Shadcn UI (if TypeScript is enabled)
 
 ```bash
 $ npx inikit@latest
@@ -100,7 +102,7 @@ Welcome to Inikit v1.2.4
 ✔ Enter the project name › my-awesome-app
 ✔ Select a framework › Next.js
 ✔ Do you want to use TypeScript? › Yes
-✔ Select dev tools › Tailwind CSS, Prettier, Husky
+✔ Select dev tools › Tailwind CSS, Prettier, Husky, Shadcn UI
 
 ✅ Project initialized successfully!
 ```
@@ -113,6 +115,7 @@ for automation.
 Examples:
 
 ```bash
+
 # Next.js + TypeScript with recommended tools (Tailwind, Prettier, Commitlint)
 npx inikit my-app --next --ts --tools
 
@@ -121,6 +124,9 @@ npx inikit my-app --react --js --no-tools --no-git
 
 # React + TypeScript with only Tailwind and Prettier
 npx inikit my-app --react --ts --tailwind --prettier
+
+# React + TypeScript with Shadcn UI
+npx inikit my-app --react --ts --shadcn
 ```
 
 Note:
@@ -143,6 +149,7 @@ Note:
 | `--eslint`                    | Add ESLint config.                                          |
 | `--prettier`                  | Add Prettier config.                                        |
 | `--commitlint`                | Add Commitlint + Husky config.                              |
+| `--shadcn`                    | Add Shadcn UI config (TypeScript required).                 |
 | `--tools`                     | Use recommended dev tools (Tailwind, Prettier, Commitlint). |
 | `--no-tools`                  | Skip all dev tools setup.                                   |
 | `--no-git`                    | Skip Git initialization.                                    |
@@ -207,6 +214,7 @@ Inikit/
 │   ├── commitlint/       # Commitlint configuration
 │   ├── husky/            # Git hooks
 │   ├── prettier/         # Prettier configuration
+│   ├── shadcn-vite/      # Shadcn UI Vite/TypeScript template files
 │   └── tailwind/         # Tailwind CSS files
 ├── dist/                 # Compiled output (created after build)
 └── README.md             # This file
