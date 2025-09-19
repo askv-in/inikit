@@ -1,6 +1,6 @@
 import * as p from '@clack/prompts';
 import { $ } from 'execa';
-import { copyFileSync, existsSync, cpSync } from 'node:fs';
+import fs, { copyFileSync, existsSync, cpSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 
@@ -148,4 +148,74 @@ export const addShadcnUi = async (appPath: string) => {
 	await $({
 		cwd: appPath,
 	})`npx shadcn init -d -y -s`;
+};
+
+export const createExpressApp = async (
+	appName: string,
+	useTypeScript = false
+) => {
+	const appPath = path.resolve(process.cwd(), appName);
+
+	fs.mkdirSync(appPath, { recursive: true });
+
+	await $({ cwd: appPath })`npm init -y`;
+
+	await $({ cwd: appPath })`npm install express`;
+
+	let entryFile = 'index.js';
+	const serverCode = `
+import express from "express";
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Hello from ExpressJS");
+});
+
+app.listen(PORT, () => {
+  console.log(\` Server running => http://localhost:\${PORT}\`);
+});
+`;
+
+	if (useTypeScript) {
+		entryFile = 'src/index.ts';
+		fs.mkdirSync(path.join(appPath, 'src'), { recursive: true });
+
+		await $({
+			cwd: appPath,
+		})`npm install -D typescript ts-node @types/express @types/node`;
+
+		const tsConfig = {
+			compilerOptions: {
+				target: 'ESNext',
+				module: 'ESNext',
+				moduleResolution: 'Node',
+				outDir: 'dist',
+				rootDir: 'src',
+				esModuleInterop: true,
+				forceConsistentCasingInFileNames: true,
+				strict: true,
+				skipLibCheck: true,
+			},
+		};
+		fs.writeFileSync(
+			path.join(appPath, 'tsconfig.json'),
+			JSON.stringify(tsConfig, null, 2)
+		);
+	}
+
+	fs.writeFileSync(path.join(appPath, entryFile), serverCode.trim());
+
+	const pkg = JSON.parse(
+		fs.readFileSync(path.join(appPath, 'package.json'), 'utf-8')
+	);
+	pkg.scripts = {
+		...pkg.scripts,
+		start: useTypeScript ? 'ts-node src/index.ts' : 'node index.js',
+	};
+	fs.writeFileSync(
+		path.join(appPath, 'package.json'),
+		JSON.stringify(pkg, null, 2)
+	);
 };
