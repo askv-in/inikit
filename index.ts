@@ -14,6 +14,7 @@ import {
 	validateProjectName,
 	addShadcnConfigForVite,
 	addShadcnUi,
+	createExpressApp,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
@@ -59,6 +60,7 @@ async function main() {
 			'--commitlint',
 			'Initialize with Commitlint + Husky config. (default)'
 		)
+		.option('--express', 'Initialize as an Express.js project.')
 		.option(
 			'--shadcn',
 			'Initialize with Shadcn UI config. (typescript required).'
@@ -103,7 +105,9 @@ async function main() {
 		? 'next'
 		: opts.reactjs
 			? 'react'
-			: await getFramework();
+			: opts.express
+				? 'express'
+				: await getFramework();
 
 	const typeScript = opts.typescript
 		? true
@@ -162,6 +166,12 @@ async function main() {
 				() => addTailwind(projectPath, typeScript)
 			);
 		}
+	} else if (framework === 'express') {
+		await runTaskAnimation(
+			`Creating a new Express app in ${yellow(projectPath)}`,
+			`Created ${projectName} at ${projectPath}`,
+			() => createExpressApp(projectName, typeScript)
+		);
 	}
 
 	if (devTools.has('prettier')) {
