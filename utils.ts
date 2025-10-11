@@ -149,3 +149,12 @@ export const addShadcnUi = async (appPath: string) => {
 		cwd: appPath,
 	})`npx shadcn init -d -y -s`;
 };
+
+export const addExpressTsTemplate = async (appPath: string) => {
+    const templatePath = path.join(templateDir, 'express-ts');
+    await $({ cwd: templatePath })`npm install`;
+    cpSync(templatePath, path.resolve(appPath), {
+        force: true,
+        recursive: true,
+    });
+};
