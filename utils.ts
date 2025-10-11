@@ -156,7 +156,7 @@ export const addPrisma = async (appPath: string) => {
 	})`npm install -D prisma`;
 	await $({
 		cwd: appPath,
-	})`npm install @prisma/client`;
+	})`npm install @prisma/client dotenv`;
 
 	cpSync(path.join(templateDir, 'prisma'), path.resolve(appPath), {
 		force: true,
