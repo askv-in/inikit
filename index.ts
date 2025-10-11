@@ -15,6 +15,7 @@ import {
 	addShadcnConfigForVite,
 	addShadcnUi,
 	addPrisma,
+	addExpressTsTemplate,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
@@ -113,6 +114,18 @@ async function main() {
 		: opts.reactjs
 			? 'react'
 			: await getFramework();
+
+	const projectPath = path.resolve(process.cwd(), projectName);
+
+	if (framework === 'express') {
+		await runTaskAnimation(
+			`Creating a new Express TypeScript app in ${yellow(projectPath)}`,
+			`Created Express TypeScript app at ${projectPath}`,
+			() => addExpressTsTemplate(projectPath)
+		);
+		p.outro(green(`Project initialized successfully! Happy coding!`));
+		process.exit(0);
+	}
 
 	const typeScript = opts.typescript
 		? true
