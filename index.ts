@@ -166,8 +166,6 @@ async function main() {
 		if (devTools.has('shadcn')) devTools.add('tailwind');
 	}
 
-	const projectPath = path.resolve(process.cwd(), projectName);
-
 	if (framework === 'next') {
 		await runTaskAnimation(
 			`Creating a new Next.js app in ${yellow(projectPath)}`,
