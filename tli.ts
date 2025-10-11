@@ -48,16 +48,27 @@ export async function getTypeScript() {
 	return typeScript;
 }
 
-export async function getDevtools(typescript: boolean) {
+export async function getDevtools(
+	framework: 'next' | 'react',
+	typescript: boolean
+) {
 	const devTools = await p.multiselect({
 		message: `Select ${cyan('dev tools')}`,
 		options: typescript
-			? [
-					{ value: 'tailwind', label: 'Tailwind CSS' },
-					{ value: 'prettier', label: 'Prettier' },
-					{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
-					{ value: 'shadcn', label: 'Shadcn UI' },
-				]
+			? framework === 'next'
+				? [
+						{ value: 'tailwind', label: 'Tailwind CSS' },
+						{ value: 'prettier', label: 'Prettier' },
+						{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
+						{ value: 'shadcn', label: 'Shadcn UI' },
+						{ value: 'prisma', label: 'Prisma ORM' },
+					]
+				: [
+						{ value: 'tailwind', label: 'Tailwind CSS' },
+						{ value: 'prettier', label: 'Prettier' },
+						{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
+						{ value: 'shadcn', label: 'Shadcn UI' },
+					]
 			: [
 					{ value: 'tailwind', label: 'Tailwind CSS' },
 					{ value: 'prettier', label: 'Prettier' },

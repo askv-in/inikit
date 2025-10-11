@@ -150,6 +150,20 @@ export const addShadcnUi = async (appPath: string) => {
 	})`npx shadcn init -d -y -s`;
 };
 
+export const addPrisma = async (appPath: string) => {
+	await $({
+		cwd: appPath,
+	})`npm install -D prisma`;
+	await $({
+		cwd: appPath,
+	})`npm install @prisma/client dotenv`;
+
+	cpSync(path.join(templateDir, 'prisma'), path.resolve(appPath), {
+		force: true,
+		recursive: true,
+	});
+};
+
 export const addExpressTsTemplate = async (appPath: string) => {
     const templatePath = path.join(templateDir, 'express-ts');
     await $({ cwd: templatePath })`npm install`;
