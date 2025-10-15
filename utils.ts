@@ -61,11 +61,11 @@ export const createReactApp = async (appName: string, typeScript: boolean) => {
 		cwd: process.cwd(),
 	})`npx create-vite ${appName} --- --template ${
 		typeScript ? 'react-ts' : 'react'
-	}`;
+	} --rolldown --no-immediate`;
 
 	await $({
 		cwd: path.resolve(process.cwd(), appName),
-	})`npm install`;
+	})`npm install `;
 };
 
 export const addTailwind = async (appPath: string, typeScript: boolean) => {
@@ -171,4 +171,19 @@ export const addExpressTsTemplate = async (appPath: string) => {
 		force: true,
 		recursive: true,
 	});
+};
+
+export const addZustand = async (appPath: string, typeScript: boolean) => {
+	await $({
+		cwd: appPath,
+	})`npm install zustand`;
+
+	cpSync(
+		path.join(templateDir, 'zustand', typeScript ? 'ts' : 'js'),
+		path.resolve(appPath),
+		{
+			force: true,
+			recursive: true,
+		}
+	);
 };
