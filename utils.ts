@@ -164,11 +164,16 @@ export const addPrisma = async (appPath: string) => {
 	});
 };
 
-export const addExpressTsTemplate = async (appPath: string) => {
-	const templatePath = path.join(templateDir, 'express-ts');
-	await $({ cwd: templatePath })`npm install`;
-	cpSync(templatePath, path.resolve(appPath), {
-		force: true,
-		recursive: true,
-	});
+export const createExpressApp = async (
+	appPath: string,
+	typeScript: boolean
+) => {
+	if (typeScript) {
+		const templatePath = path.join(templateDir, 'express-ts');
+		await $({ cwd: templatePath })`npm install`;
+		cpSync(templatePath, path.resolve(appPath), {
+			force: true,
+			recursive: true,
+		});
+	}
 };
