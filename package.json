@@ -22,13 +22,11 @@
 		"dist"
 	],
 	"lint-staged": {
-  "*.{js,ts,tsx}": [
-    "eslint --fix",
-    "prettier --write"
-  ]
-}
-
-	,
+		"*.{js,ts,tsx}": [
+			"eslint --fix",
+			"prettier --write"
+		]
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/askv-in/inikit.git"
