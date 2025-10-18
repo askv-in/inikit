@@ -62,7 +62,14 @@ export async function getDevtools(
 				? [{ value: 'shadcn', label: 'Shadcn/ui', hint: 'component library' }]
 				: []),
 			...(framework === 'next' && typescript
-				? [{ value: 'prisma', label: 'Prisma', hint: 'database ORM' }]
+				? [
+						{ value: 'prisma', label: 'Prisma', hint: 'database ORM' },
+						{
+							value: 'authjs',
+							label: 'Auth.js',
+							hint: 'authentication library (next-auth)',
+						},
+					]
 				: []),
 			{
 				value: 'zustand',

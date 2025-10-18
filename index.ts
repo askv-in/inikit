@@ -18,6 +18,7 @@ import {
 	addZustand,
 	createExpressApp,
 	addZod,
+	addAuthJs,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
@@ -72,6 +73,10 @@ async function main() {
 			'--prisma',
 			'Initialize with Prisma ORM config. (nextjs only, typescript required).'
 		)
+		.option(
+			'--auth, --authjs',
+			'Initialize with Auth.js configuration. (nextjs only, typescript required).'
+		)
 		.option('--zustand', 'Initialize with Zustand state management.')
 		.option('--zod', 'Initialize with Zod validation library.')
 		.option('--no-git', 'Skip git initialization.')
@@ -108,6 +113,11 @@ async function main() {
 
 	if (opts.prisma && (!opts.nextjs || !opts.typescript)) {
 		p.log.error(`--prisma requires both --nextjs and --typescript to be set.`);
+		process.exit(1);
+	}
+
+	if (opts.authjs && (!opts.nextjs || !opts.typescript)) {
+		p.log.error(`--authjs requires both --nextjs and --typescript to be set.`);
 		process.exit(1);
 	}
 
@@ -157,6 +167,7 @@ async function main() {
 		!opts.tailwindcss &&
 		!opts.shadcn &&
 		!opts.prisma &&
+		!opts.authjs &&
 		!opts.zustand &&
 		!opts.zod &&
 		opts.tools === undefined
@@ -166,11 +177,9 @@ async function main() {
 		if (opts.tailwindcss) devTools.add('tailwind');
 		if (opts.prettier) devTools.add('prettier');
 		if (opts.commitlint) devTools.add('commitlint');
-		if (opts.shadcn) {
-			devTools.add('shadcn');
-			devTools.add('tailwind');
-		}
+		if (opts.shadcn) devTools.add('shadcn');
 		if (opts.prisma) devTools.add('prisma');
+		if (opts.authjs) devTools.add('authjs');
 		if (opts.zustand) devTools.add('zustand');
 		if (opts.zod) devTools.add('zod');
 		if (opts.tools === true) {
@@ -179,6 +188,8 @@ async function main() {
 			devTools.add('commitlint');
 		}
 	}
+	if (devTools.has('shadcn')) devTools.add('tailwind');
+	if (devTools.has('authjs')) devTools.add('prisma');
 
 	if (framework === 'next') {
 		await runTaskAnimation(
@@ -244,34 +255,41 @@ async function main() {
 				() => addPrisma(projectPath)
 			);
 		}
-	}
+		if (typeScript && devTools.has('authjs')) {
+			await runTaskAnimation(
+				`Adding Auth.js to the project`,
+				`Added Auth.js configuration`,
+				() => addAuthJs(projectPath)
+			);
+		}
 
-	if (devTools.has('zustand')) {
-		await runTaskAnimation(
-			`Adding Zustand state management`,
-			`Added Zustand configuration`,
-			() => addZustand(projectPath, typeScript)
-		);
-	}
+		if (devTools.has('zustand')) {
+			await runTaskAnimation(
+				`Adding Zustand state management`,
+				`Added Zustand configuration`,
+				() => addZustand(projectPath, typeScript)
+			);
+		}
 
-	if (typeScript && devTools.has('zod')) {
-		await runTaskAnimation(
-			`Adding Zod validation library`,
-			`Added Zod configuration`,
-			() => addZod(projectPath)
-		);
-	}
+		if (typeScript && devTools.has('zod')) {
+			await runTaskAnimation(
+				`Adding Zod validation library`,
+				`Added Zod configuration`,
+				() => addZod(projectPath)
+			);
+		}
 
-	if (opts.git !== false) {
-		await runTaskAnimation(
-			`Initializing git repository`,
-			`Initialized git repository`,
-			() => addGit(projectPath)
-		);
-	}
+		if (opts.git !== false) {
+			await runTaskAnimation(
+				`Initializing git repository`,
+				`Initialized git repository`,
+				() => addGit(projectPath)
+			);
+		}
 
-	p.outro(green(`Project initialized successfully! Happy coding!`));
-	process.exit(0);
+		p.outro(green(`Project initialized successfully! Happy coding!`));
+		process.exit(0);
+	}
 }
 
 main().catch(err => {
