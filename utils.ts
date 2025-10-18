@@ -203,3 +203,26 @@ export const addZod = async (appPath: string) => {
 		recursive: true,
 	});
 };
+
+export const addAuthJs = async (appPath: string) => {
+	await $({
+		cwd: appPath,
+	})`npm install next-auth@beta @auth/prisma-adapter`;
+
+	cpSync(path.join(templateDir, 'authjs'), path.resolve(appPath), {
+		force: true,
+		recursive: true,
+	});
+
+	await $({
+		cwd: appPath,
+	})`npx auth secret`;
+
+	await $({
+		cwd: appPath,
+	})`npm install -g prisma@latest`;
+
+	await $({
+		cwd: appPath,
+	})`npx prisma generate`;
+};
