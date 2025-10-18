@@ -192,3 +192,14 @@ export const addZustand = async (appPath: string, typeScript: boolean) => {
 		}
 	);
 };
+
+export const addZod = async (appPath: string) => {
+	await $({
+		cwd: appPath,
+	})`npm install zod`;
+
+	cpSync(path.join(templateDir, 'zod'), path.resolve(appPath), {
+		force: true,
+		recursive: true,
+	});
+};

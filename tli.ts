@@ -49,7 +49,7 @@ export async function getTypeScript() {
 }
 
 export async function getDevtools(
-	framework: 'next' | 'react',
+	framework: 'next' | 'react' | 'express',
 	typescript: boolean
 ) {
 	const devTools = await p.multiselect({
@@ -68,6 +68,11 @@ export async function getDevtools(
 				value: 'zustand',
 				label: 'Zustand',
 				hint: 'lightweight state management',
+			},
+			{
+				value: 'zod',
+				label: 'Zod',
+				hint: 'TypeScript-first schema validation',
 			},
 		],
 		initialValues: ['tailwind', 'prettier', 'commitlint'],
