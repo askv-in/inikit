@@ -15,8 +15,8 @@ import {
 	addShadcnConfigForVite,
 	addShadcnUi,
 	addPrisma,
-	addExpressTsTemplate,
 	addZustand,
+	createExpressApp,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
@@ -47,6 +47,7 @@ async function main() {
 		.helpOption('-h, --help', 'Display this help message.')
 		.option('--next, --nextjs', 'Initialize as a Next.js project.')
 		.option('--react, --reactjs', 'Initialize as a React project.')
+		.option('--express', 'Initialize as an Express.js project.')
 		.option(
 			'--ts, --typescript',
 			'Initialize as a TypeScript project. (default)'
@@ -86,14 +87,23 @@ async function main() {
 		);
 		process.exit(1);
 	}
-	if (opts.nextjs && opts.reactjs) {
-		p.log.error('Cannot use both --nextjs and --reactjs flags together.');
+
+	if (
+		(opts.nextjs && opts.reactjs) ||
+		(opts.nextjs && opts.express) ||
+		(opts.reactjs && opts.express)
+	) {
+		p.log.error(
+			'Please select only one framework: --nextjs, --reactjs, or --express.'
+		);
 		process.exit(1);
 	}
+
 	if (opts.shadcn && !opts.typescript) {
 		p.log.error(`--shadcn requires --typescript to be set.`);
 		process.exit(1);
 	}
+
 	if (opts.prisma && (!opts.nextjs || !opts.typescript)) {
 		p.log.error(`--prisma requires both --nextjs and --typescript to be set.`);
 		process.exit(1);
@@ -115,19 +125,11 @@ async function main() {
 		? 'next'
 		: opts.reactjs
 			? 'react'
-			: await getFramework();
+			: opts.express
+				? 'express'
+				: await getFramework();
 
 	const projectPath = path.resolve(process.cwd(), projectName);
-
-	if (framework === 'express') {
-		await runTaskAnimation(
-			`Creating a new Express TypeScript app in ${yellow(projectPath)}`,
-			`Created Express TypeScript app at ${projectPath}`,
-			() => addExpressTsTemplate(projectPath)
-		);
-		p.outro(green(`Project initialized successfully! Happy coding!`));
-		process.exit(0);
-	}
 
 	const typeScript = opts.typescript
 		? true
@@ -189,43 +191,51 @@ async function main() {
 				() => addTailwind(projectPath, typeScript)
 			);
 		}
-	}
-
-	if (devTools.has('prettier')) {
+	} else if (framework === 'express') {
 		await runTaskAnimation(
-			`Adding prettier to the project`,
-			`Added prettier configuration`,
-			() => addPrettier(projectPath)
+			`Creating a new Express TypeScript app in ${yellow(projectPath)}`,
+			`Created Express TypeScript app at ${projectPath}`,
+			() => createExpressApp(projectPath, typeScript)
 		);
 	}
 
-	if (devTools.has('commitlint')) {
-		await runTaskAnimation(
-			`Adding husky and commitlint to the project`,
-			`Added husky and commitlint configuration`,
-			() => addCommitlint(projectPath)
-		);
-	}
+	if (framework === 'react' || framework === 'next') {
+		if (devTools.has('prettier')) {
+			await runTaskAnimation(
+				`Adding prettier to the project`,
+				`Added prettier configuration`,
+				() => addPrettier(projectPath)
+			);
+		}
 
-	if (typeScript && devTools.has('shadcn')) {
-		await runTaskAnimation(
-			`Adding shadcn UI to the project`,
-			`Added shadcn UI configuration`,
-			async () => {
-				if (framework === 'react') {
-					addShadcnConfigForVite(projectPath);
+		if (devTools.has('commitlint')) {
+			await runTaskAnimation(
+				`Adding husky and commitlint to the project`,
+				`Added husky and commitlint configuration`,
+				() => addCommitlint(projectPath)
+			);
+		}
+
+		if (typeScript && devTools.has('shadcn')) {
+			await runTaskAnimation(
+				`Adding shadcn UI to the project`,
+				`Added shadcn UI configuration`,
+				async () => {
+					if (framework === 'react') {
+						addShadcnConfigForVite(projectPath);
+					}
+					await addShadcnUi(projectPath);
 				}
-				await addShadcnUi(projectPath);
-			}
-		);
-	}
+			);
+		}
 
-	if (typeScript && devTools.has('prisma')) {
-		await runTaskAnimation(
-			`Adding Prisma ORM to the project`,
-			`Added Prisma ORM configuration`,
-			() => addPrisma(projectPath)
-		);
+		if (typeScript && devTools.has('prisma')) {
+			await runTaskAnimation(
+				`Adding Prisma ORM to the project`,
+				`Added Prisma ORM configuration`,
+				() => addPrisma(projectPath)
+			);
+		}
 	}
 
 	if (devTools.has('zustand')) {
