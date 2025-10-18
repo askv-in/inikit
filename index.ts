@@ -17,6 +17,7 @@ import {
 	addPrisma,
 	addZustand,
 	createExpressApp,
+	addZod,
 } from './utils.js';
 import path from 'node:path';
 import packageJSON from './package.json' with { type: 'json' };
@@ -72,6 +73,7 @@ async function main() {
 			'Initialize with Prisma ORM config. (nextjs only, typescript required).'
 		)
 		.option('--zustand', 'Initialize with Zustand state management.')
+		.option('--zod', 'Initialize with Zod validation library.')
 		.option('--no-git', 'Skip git initialization.')
 		.option('--tools', 'Use recommended dev tools.')
 		.option(`--no-tools`, 'Skip all dev tools setup.')
@@ -109,6 +111,15 @@ async function main() {
 		process.exit(1);
 	}
 
+	if (opts.zod && !opts.typescript) {
+		p.log.error(`--zod requires --typescript to be set.`);
+		process.exit(1);
+	}
+	if (opts.zod && opts.express) {
+		p.log.error(`--zod is not supported for Express.js projects yet.`);
+		process.exit(1);
+	}
+
 	p.log.info(
 		`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}`
 	);
@@ -138,24 +149,20 @@ async function main() {
 			: await getTypeScript();
 
 	let devTools: Set<string> = new Set<string>();
-	if (opts.tools === true) {
-		devTools.add('tailwind');
-		devTools.add('prettier');
-		devTools.add('commitlint');
-		if (opts.shadcn) {
-			devTools.add('shadcn');
-		}
-		if (opts.prisma) {
-			devTools.add('prisma');
-		}
-	} else if (
-		opts.tailwindcss ||
-		opts.prettier ||
-		opts.commitlint ||
-		opts.shadcn ||
-		opts.prisma ||
-		opts.zustand
+
+	if (
+		!opts.tools &&
+		!opts.prettier &&
+		!opts.commitlint &&
+		!opts.tailwindcss &&
+		!opts.shadcn &&
+		!opts.prisma &&
+		!opts.zustand &&
+		!opts.zod &&
+		opts.tools === undefined
 	) {
+		devTools = await getDevtools(framework, typeScript);
+	} else {
 		if (opts.tailwindcss) devTools.add('tailwind');
 		if (opts.prettier) devTools.add('prettier');
 		if (opts.commitlint) devTools.add('commitlint');
@@ -165,11 +172,12 @@ async function main() {
 		}
 		if (opts.prisma) devTools.add('prisma');
 		if (opts.zustand) devTools.add('zustand');
-	} else if (opts.tools === false) {
-		// No dev tools
-	} else {
-		devTools = await getDevtools(framework, typeScript);
-		if (devTools.has('shadcn')) devTools.add('tailwind');
+		if (opts.zod) devTools.add('zod');
+		if (opts.tools === true) {
+			devTools.add('tailwind');
+			devTools.add('prettier');
+			devTools.add('commitlint');
+		}
 	}
 
 	if (framework === 'next') {
@@ -243,6 +251,14 @@ async function main() {
 			`Adding Zustand state management`,
 			`Added Zustand configuration`,
 			() => addZustand(projectPath, typeScript)
+		);
+	}
+
+	if (typeScript && devTools.has('zod')) {
+		await runTaskAnimation(
+			`Adding Zod validation library`,
+			`Added Zod configuration`,
+			() => addZod(projectPath)
 		);
 	}
 
