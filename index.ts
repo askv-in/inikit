@@ -15,6 +15,7 @@ import {
 	addShadcnConfigForVite,
 	addShadcnUi,
 	addPrisma,
+	addZustand,
 	createExpressApp,
 } from './utils.js';
 import path from 'node:path';
@@ -70,6 +71,7 @@ async function main() {
 			'--prisma',
 			'Initialize with Prisma ORM config. (nextjs only, typescript required).'
 		)
+		.option('--zustand', 'Initialize with Zustand state management.')
 		.option('--no-git', 'Skip git initialization.')
 		.option('--tools', 'Use recommended dev tools.')
 		.option(`--no-tools`, 'Skip all dev tools setup.')
@@ -135,16 +137,6 @@ async function main() {
 			? false
 			: await getTypeScript();
 
-	if (framework === 'express') {
-		await runTaskAnimation(
-			`Creating a new Express TypeScript app in ${yellow(projectPath)}`,
-			`Created Express TypeScript app at ${projectPath}`,
-			() => createExpressApp(projectPath, typeScript)
-		);
-		p.outro(green(`Project initialized successfully! Happy coding!`));
-		process.exit(0);
-	}
-
 	let devTools: Set<string> = new Set<string>();
 	if (opts.tools === true) {
 		devTools.add('tailwind');
@@ -161,7 +153,8 @@ async function main() {
 		opts.prettier ||
 		opts.commitlint ||
 		opts.shadcn ||
-		opts.prisma
+		opts.prisma ||
+		opts.zustand
 	) {
 		if (opts.tailwindcss) devTools.add('tailwind');
 		if (opts.prettier) devTools.add('prettier');
@@ -171,6 +164,7 @@ async function main() {
 			devTools.add('tailwind');
 		}
 		if (opts.prisma) devTools.add('prisma');
+		if (opts.zustand) devTools.add('zustand');
 	} else if (opts.tools === false) {
 		// No dev tools
 	} else {
@@ -242,6 +236,14 @@ async function main() {
 				() => addPrisma(projectPath)
 			);
 		}
+	}
+
+	if (devTools.has('zustand')) {
+		await runTaskAnimation(
+			`Adding Zustand state management`,
+			`Added Zustand configuration`,
+			() => addZustand(projectPath, typeScript)
+		);
 	}
 
 	if (opts.git !== false) {

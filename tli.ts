@@ -53,34 +53,29 @@ export async function getDevtools(
 	typescript: boolean
 ) {
 	const devTools = await p.multiselect({
-		message: `Select ${cyan('dev tools')}`,
-		options: typescript
-			? framework === 'next'
-				? [
-						{ value: 'tailwind', label: 'Tailwind CSS' },
-						{ value: 'prettier', label: 'Prettier' },
-						{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
-						{ value: 'shadcn', label: 'Shadcn UI' },
-						{ value: 'prisma', label: 'Prisma ORM' },
-					]
-				: [
-						{ value: 'tailwind', label: 'Tailwind CSS' },
-						{ value: 'prettier', label: 'Prettier' },
-						{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
-						{ value: 'shadcn', label: 'Shadcn UI' },
-					]
-			: [
-					{ value: 'tailwind', label: 'Tailwind CSS' },
-					{ value: 'prettier', label: 'Prettier' },
-					{ value: 'commitlint', label: 'Husky', hint: 'commitlint + husky' },
-				],
+		message: `Select ${cyan('dev tools')} to configure`,
+		options: [
+			{ value: 'tailwind', label: 'Tailwind CSS', hint: 'utility-first CSS' },
+			{ value: 'prettier', label: 'Prettier', hint: 'code formatter' },
+			{ value: 'commitlint', label: 'Commitlint', hint: 'commit linting' },
+			...(framework === 'react' && typescript
+				? [{ value: 'shadcn', label: 'Shadcn/ui', hint: 'component library' }]
+				: []),
+			...(framework === 'next' && typescript
+				? [{ value: 'prisma', label: 'Prisma', hint: 'database ORM' }]
+				: []),
+			{
+				value: 'zustand',
+				label: 'Zustand',
+				hint: 'lightweight state management',
+			},
+		],
 		initialValues: ['tailwind', 'prettier', 'commitlint'],
-		required: false,
 	});
 
 	if (p.isCancel(devTools)) {
 		p.cancel('Operation cancelled.');
-		return process.exit(0);
+		process.exit(0);
 	}
 	return new Set(devTools);
 }
