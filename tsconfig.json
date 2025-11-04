@@ -11,6 +11,6 @@
 		"moduleResolution": "nodenext" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
 		"resolveJsonModule": true
 	},
-	"include": ["index.ts", "utils.ts", "tli.ts"],
+	"include": ["index.ts", "utils.ts", "tli.ts", "inikit.config.ts"],
 	"exclude": ["./templates"]
 }
