@@ -28,7 +28,8 @@ import {
 	getProjectName,
 	getTypeScript,
 } from './tli.js';
-import { Command } from 'commander';
+import { toolsConfig } from './inikit.config.js';
+import { Command, Option } from 'commander';
 
 const { green, yellow } = chalkStderr;
 
@@ -47,178 +48,169 @@ async function main() {
 		.argument('[directory]')
 		.usage('[directory] [options]')
 		.helpOption('-h, --help', 'Display this help message.')
-		.option('--next, --nextjs', 'Initialize as a Next.js project.')
-		.option('--react, --reactjs', 'Initialize as a React project.')
-		.option('--express', 'Initialize as an Express.js project.')
-		.option(
-			'--ts, --typescript',
-			'Initialize as a TypeScript project. (default)'
+		.addOption(
+			new Option(
+				'--next, --nextjs',
+				'Initialize as a Next.js project.'
+			).conflicts(['reactjs', 'expressjs'])
 		)
-		.option('--js, --javascript', 'Initialize as a JavaScript project.')
-		.option(
-			'--tailwind, --tailwindcss',
-			'Initialize with Tailwind CSS config. (default)'
+		.addOption(
+			new Option(
+				'--react, --reactjs',
+				'Initialize as a React project.'
+			).conflicts(['nextjs', 'expressjs'])
 		)
-		.option('--eslint', 'Initialize with ESLint config. (default)')
-		.option('--prettier', 'Initialize with Prettier config. (default)')
-		.option(
-			'--commitlint',
-			'Initialize with Commitlint + Husky config. (default)'
+		.addOption(
+			new Option(
+				'--express, --expressjs',
+				'Initialize as an Express.js project.'
+			).conflicts(['nextjs', 'reactjs'])
 		)
-		.option(
-			'--shadcn',
-			'Initialize with Shadcn UI config. (typescript required).'
+		.addOption(
+			new Option(
+				'--ts, --typescript',
+				'Initialize as a TypeScript project. (default)'
+			).conflicts('javascript')
 		)
-		.option(
-			'--prisma',
-			'Initialize with Prisma ORM config. (nextjs only, typescript required).'
-		)
-		.option(
-			'--auth, --authjs',
-			'Initialize with Auth.js configuration. (nextjs only, typescript required).'
-		)
-		.option('--zustand', 'Initialize with Zustand state management.')
-		.option('--zod', 'Initialize with Zod validation library.')
-		.option('--no-git', 'Skip git initialization.')
-		.option('--tools', 'Use recommended dev tools.')
-		.option(`--no-tools`, 'Skip all dev tools setup.')
+		.addOption(
+			new Option(
+				'--js, --javascript',
+				'Initialize as a JavaScript project.'
+			).conflicts('typescript')
+		);
+
+	for (const tool of toolsConfig) {
+		program.addOption(
+			new Option(
+				`${tool.otherName ? `--${tool.otherName}, ` : ''}--${tool.baseName}`,
+				`${tool.description}`
+			)
+		);
+	}
+
+	program
+		.addOption(new Option('--no-git', 'Skip git initialization.'))
+		.addOption(new Option('--tools', 'Use recommended dev tools.'))
+		.addOption(new Option(`--no-tools`, 'Skip all dev tools setup.'))
 		.allowUnknownOption()
 		.parse(process.argv);
 
 	const opts = program.opts(); // Get options
 	const { args } = program; // Get positional arguments (ProjectName)
 
-	if (opts.typescript && opts.javascript) {
-		p.log.error(
-			'Cannot use both --typescript and --javascript flags together.'
-		);
-		process.exit(1);
-	}
-
-	if (
-		(opts.nextjs && opts.reactjs) ||
-		(opts.nextjs && opts.express) ||
-		(opts.reactjs && opts.express)
-	) {
-		p.log.error(
-			'Please select only one framework: --nextjs, --reactjs, or --express.'
-		);
-		process.exit(1);
-	}
-
-	if (opts.shadcn && !opts.typescript) {
-		p.log.error(`--shadcn requires --typescript to be set.`);
-		process.exit(1);
-	}
-
-	if (opts.prisma && (!opts.nextjs || !opts.typescript)) {
-		p.log.error(`--prisma requires both --nextjs and --typescript to be set.`);
-		process.exit(1);
-	}
-
-	if (opts.authjs && (!opts.nextjs || !opts.typescript)) {
-		p.log.error(`--authjs requires both --nextjs and --typescript to be set.`);
-		process.exit(1);
-	}
-
-	if (opts.zod && !opts.typescript) {
-		p.log.error(`--zod requires --typescript to be set.`);
-		process.exit(1);
-	}
-	if (opts.zod && opts.express) {
-		p.log.error(`--zod is not supported for Express.js projects yet.`);
-		process.exit(1);
-	}
-
-	p.log.info(
-		`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}`
-	);
-
-	const projectNameError = validateProjectName(args[0] ?? 'my-app');
-	if (typeof projectNameError === 'string') {
-		p.log.error(projectNameError);
-		process.exit(1);
-	}
-
-	const projectName = args[0] ?? (await getProjectName());
-
-	const framework = opts.nextjs
-		? 'next'
-		: opts.reactjs
-			? 'react'
-			: opts.express
-				? 'express'
-				: await getFramework();
-
-	const projectPath = path.resolve(process.cwd(), projectName);
-
-	const typeScript = opts.typescript
-		? true
+	const language = opts.typescript
+		? 'typescript'
 		: opts.javascript
-			? false
-			: await getTypeScript();
+			? 'javascript'
+			: null;
+	const frameworkOpt = opts.nextjs
+		? 'nextjs'
+		: opts.reactjs
+			? 'reactjs'
+			: opts.expressjs
+				? 'expressjs'
+				: null;
 
-	let devTools: Set<string> = new Set<string>();
-
-	if (
-		!opts.tools &&
-		!opts.prettier &&
-		!opts.commitlint &&
-		!opts.tailwindcss &&
-		!opts.shadcn &&
-		!opts.prisma &&
-		!opts.authjs &&
-		!opts.zustand &&
-		!opts.zod &&
-		opts.tools === undefined
-	) {
-		devTools = await getDevtools(framework, typeScript);
-	} else {
-		if (opts.tailwindcss) devTools.add('tailwind');
-		if (opts.prettier) devTools.add('prettier');
-		if (opts.commitlint) devTools.add('commitlint');
-		if (opts.shadcn) devTools.add('shadcn');
-		if (opts.prisma) devTools.add('prisma');
-		if (opts.authjs) devTools.add('authjs');
-		if (opts.zustand) devTools.add('zustand');
-		if (opts.zod) devTools.add('zod');
-		if (opts.tools === true) {
-			devTools.add('tailwind');
-			devTools.add('prettier');
-			devTools.add('commitlint');
+	for (const tool of toolsConfig) {
+		if (opts[tool.baseName]) {
+			if (language ? !tool.language.includes(language) : true) {
+				p.log.error(
+					`--${tool.baseName} requires --${tool.language.join(' or --')} to be set.`
+				);
+				process.exit(1);
+			}
+			if (frameworkOpt ? !tool.frameworks.includes(frameworkOpt) : true) {
+				p.log.error(
+					`--${tool.baseName} requires --${tool.frameworks.join(' or --')} to be set.`
+				);
+				process.exit(1);
+			}
 		}
-	}
-	if (devTools.has('shadcn')) devTools.add('tailwind');
-	if (devTools.has('authjs')) devTools.add('prisma');
 
-	if (framework === 'next') {
-		await runTaskAnimation(
-			`Creating a new Next.js app in ${yellow(projectPath)}`,
-			`Created ${projectName} at ${projectPath}`,
-			() => createNextApp(projectName, typeScript, devTools.has('tailwind'))
+		p.log.info(
+			`Welcome to ${green(titleCase(packageJSON.name) + ' v' + packageJSON.version)}`
 		);
-	} else if (framework === 'react') {
-		await runTaskAnimation(
-			`Creating a new React app in ${yellow(projectPath)}`,
-			`Created ${projectName} at ${projectPath}`,
-			() => createReactApp(projectName, typeScript)
-		);
-		if (devTools.has('tailwind')) {
-			await runTaskAnimation(
-				`Adding Tailwind CSS to the project`,
-				`Added Tailwind CSS configuration`,
-				() => addTailwind(projectPath, typeScript)
-			);
+
+		const projectNameError = validateProjectName(args[0] ?? 'my-app');
+		if (typeof projectNameError === 'string') {
+			p.log.error(projectNameError);
+			process.exit(1);
 		}
-	} else if (framework === 'express') {
-		await runTaskAnimation(
-			`Creating a new Express TypeScript app in ${yellow(projectPath)}`,
-			`Created Express TypeScript app at ${projectPath}`,
-			() => createExpressApp(projectPath, typeScript)
-		);
-	}
 
-	if (framework === 'react' || framework === 'next') {
+		const projectName = args[0] ?? (await getProjectName());
+
+		const framework = opts.nextjs
+			? 'nextjs'
+			: opts.reactjs
+				? 'reactjs'
+				: opts.expressjs
+					? 'expressjs'
+					: await getFramework();
+
+		const projectPath = path.resolve(process.cwd(), projectName);
+
+		const typeScript =
+			opts.typescript || framework === 'expressjs' // !TODO: remove this when JS support is added for express
+				? true
+				: opts.javascript
+					? false
+					: await getTypeScript();
+
+		let devTools: Set<string> = new Set<string>();
+
+		if (
+			toolsConfig.reduce(
+				(acc, tool) => acc && !opts[tool.baseName],
+				!opts.tools
+			)
+		) {
+			devTools = await getDevtools(framework, typeScript);
+		} else {
+			toolsConfig.forEach(tool => {
+				if (opts[tool.baseName]) {
+					devTools.add(tool.baseName);
+					if (tool.dependencies) {
+						tool.dependencies.forEach(dep => devTools.add(dep));
+					}
+				}
+			});
+		}
+
+		switch (framework) {
+			case 'nextjs':
+				await runTaskAnimation(
+					`Creating a new Next.js app in ${yellow(projectPath)}`,
+					`Created ${projectName} at ${projectPath}`,
+					() =>
+						createNextApp(projectName, typeScript, devTools.has('tailwindcss'))
+				);
+				break;
+			case 'reactjs':
+				await runTaskAnimation(
+					`Creating a new React app in ${yellow(projectPath)}`,
+					`Created ${projectName} at ${projectPath}`,
+					() => createReactApp(projectName, typeScript)
+				);
+				if (devTools.has('tailwindcss')) {
+					await runTaskAnimation(
+						`Adding Tailwind CSS to the project`,
+						`Added Tailwind CSS configuration`,
+						() => addTailwind(projectPath, typeScript)
+					);
+				}
+				break;
+			case 'expressjs':
+				await runTaskAnimation(
+					`Creating a new Express TypeScript app in ${yellow(projectPath)}`,
+					`Created Express TypeScript app at ${projectPath}`,
+					() => createExpressApp(projectPath, typeScript)
+				);
+				break;
+			default:
+				p.log.error('Invalid framework selected.');
+				process.exit(1);
+		}
+
 		if (devTools.has('prettier')) {
 			await runTaskAnimation(
 				`Adding prettier to the project`,
@@ -235,12 +227,12 @@ async function main() {
 			);
 		}
 
-		if (typeScript && devTools.has('shadcn')) {
+		if (devTools.has('shadcn')) {
 			await runTaskAnimation(
 				`Adding shadcn UI to the project`,
 				`Added shadcn UI configuration`,
 				async () => {
-					if (framework === 'react') {
+					if (framework === 'reactjs') {
 						addShadcnConfigForVite(projectPath);
 					}
 					await addShadcnUi(projectPath);
@@ -248,14 +240,14 @@ async function main() {
 			);
 		}
 
-		if (typeScript && devTools.has('prisma')) {
+		if (devTools.has('prisma')) {
 			await runTaskAnimation(
 				`Adding Prisma ORM to the project`,
 				`Added Prisma ORM configuration`,
 				() => addPrisma(projectPath)
 			);
 		}
-		if (typeScript && devTools.has('authjs')) {
+		if (devTools.has('authjs')) {
 			await runTaskAnimation(
 				`Adding Auth.js to the project`,
 				`Added Auth.js configuration`,
@@ -271,7 +263,7 @@ async function main() {
 			);
 		}
 
-		if (typeScript && devTools.has('zod')) {
+		if (devTools.has('zod')) {
 			await runTaskAnimation(
 				`Adding Zod validation library`,
 				`Added Zod configuration`,

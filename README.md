@@ -45,15 +45,9 @@ Inikit solves this by providing:
 
 ### Using npx (Recommended)
 
-The fastest way to scaffold a new project:
-
 ```bash
 npx inikit@latest
 ```
-
-### Global Installation
-
-For repeated use, install globally:
 
 ```bash
 npm install -g inikit
@@ -80,7 +74,6 @@ inikit
 - **Prettier** - Opinionated code formatter
 - **ESLint** - JavaScript/TypeScript linter
 - **Commitlint + Husky** - Enforce conventional commit messages
-- **Shadcn UI** - Beautiful, customizable UI components for (TypeScript only)
 
 ## 📋 Usage
 
@@ -91,20 +84,18 @@ When you run Inikit without flags, you'll be prompted to:
 1. **Project Name**: Enter your project name (lowercase, no spaces)
 2. **Framework**: Choose between Next.js or React
 3. **TypeScript**: Enable/disable TypeScript support
-4. **Dev Tools**: Select from Tailwind CSS, Prettier, Husky+Commitlint, and
-   Shadcn UI (if TypeScript is enabled)
+4. **Dev Tools**: Select from Tailwind CSS, Prettier, and Husky+Commitlint
 
 ```bash
 $ npx inikit@latest
 
-Welcome to Inikit v1.2.4
+Welcome to Inikit v3.0.0
 
 ✔ Enter the project name › my-awesome-app
 ✔ Select a framework › Next.js
 ✔ Do you want to use TypeScript? › Yes
-✔ Select dev tools › Tailwind CSS, Prettier, Husky, Shadcn UI
+✔ Select dev tools › Tailwind CSS, Prettier, Husky
 
-✅ Project initialized successfully!
 ```
 
 ### Non-Interactive (Flags)
@@ -125,8 +116,6 @@ npx inikit my-app --react --js --no-tools --no-git
 # React + TypeScript with only Tailwind and Prettier
 npx inikit my-app --react --ts --tailwind --prettier
 
-# React + TypeScript with Shadcn UI
-npx inikit my-app --react --ts --shadcn
 ```
 
 Note:
@@ -136,25 +125,130 @@ Note:
 - If you don't pass `--tools`, you can choose tools individually with
   `--tailwind`, `--prettier`, and/or `--commitlint`.
 
-#### CLI Options
+#### CLI reference
 
-| Flag                          | Description                                                 |
-| ----------------------------- | ----------------------------------------------------------- |
-| `[directory]`                 | Target directory or project name.                           |
-| `--next`, `--nextjs`          | Initialize a Next.js project.                               |
-| `--react`, `--reactjs`        | Initialize a React (Vite) project.                          |
-| `--ts`, `--typescript`        | Use TypeScript.                                             |
-| `--js`, `--javascript`        | Use JavaScript.                                             |
-| `--tailwind`, `--tailwindcss` | Add Tailwind CSS config.                                    |
-| `--eslint`                    | Add ESLint config.                                          |
-| `--prettier`                  | Add Prettier config.                                        |
-| `--commitlint`                | Add Commitlint + Husky config.                              |
-| `--shadcn`                    | Add Shadcn UI config (TypeScript required).                 |
-| `--tools`                     | Use recommended dev tools (Tailwind, Prettier, Commitlint). |
-| `--no-tools`                  | Skip all dev tools setup.                                   |
-| `--no-git`                    | Skip Git initialization.                                    |
-| `-v`, `--version`             | Print version.                                              |
-| `-h`, `--help`                | Show help.                                                  |
+Below are the main CLI flags and options. Flags can be used together or in CI
+scripts to skip interactive prompts.
+
+General options
+
+| Flag / Argument   | Purpose                                                                       |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `[directory]`     | Target directory or project name to create (positional).                      |
+| `-v`, `--version` | Print Inikit version (from `package.json`).                                   |
+| `-h`, `--help`    | Show help and available options.                                              |
+| `--no-git`        | Skip initializing a Git repository in the created project.                    |
+| `--tools`         | Use the recommended dev tools (recommended tools are marked below).           |
+| `--no-tools`      | Skip automatic dev tool setup. Useful for minimal projects or custom tooling. |
+
+Framework / language selection
+
+| Flag                       | Behavior                                                                                                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `--next`, `--nextjs`       | Initialize a Next.js project (uses `create-next-app`). Conflicts with `--react` and `--express`.                             |
+| `--react`, `--reactjs`     | Initialize a React project scaffolded with Vite. Conflicts with `--next` and `--express`.                                    |
+| `--express`, `--expressjs` | Initialize an Express.js TypeScript template (Express currently requires TypeScript). Conflicts with `--next` and `--react`. |
+| `--ts`, `--typescript`     | Generate TypeScript-based projects (default for most flows). Conflicts with `--js`.                                          |
+| `--js`, `--javascript`     | Generate JavaScript-based projects. Conflicts with `--ts`.                                                                   |
+
+Tool-specific flags
+
+The CLI dynamically adds one flag per tool defined in `inikit.config.ts`. Each
+tool has a `baseName` and sometimes an `otherName` to provide a short flag
+alias.
+
+Use `--<baseName>` (or `--<otherName>` when available) to enable a specific tool
+in non-interactive mode. When enabled, the CLI will validate language/framework
+requirements and also add any tool dependencies automatically.
+
+### Tools reference (flags and requirements)
+
+The following table lists each tool flag available via the CLI (these are
+defined in `inikit.config.ts`). For tools with an `otherName`, both flags are
+accepted (e.g. `--tailwindcss` and `--tailwind`). The `Recommended` column
+indicates whether the tool is included when you pass `--tools`.
+
+| Flag(s)                       | Description                                                                            | Recommended | Languages | Frameworks                 | Dependencies  |
+| ----------------------------- | -------------------------------------------------------------------------------------- | ----------: | --------- | -------------------------- | ------------- |
+| `--tailwindcss`, `--tailwind` | Adds Tailwind CSS config and styles.                                                   |         Yes | js, ts    | reactjs, nextjs            | —             |
+| `--eslint`, `--lint`          | Adds ESLint configuration.                                                             |         Yes | js, ts    | reactjs, nextjs, expressjs | —             |
+| `--prettier`                  | Adds Prettier configuration and formatting helpers.                                    |         Yes | js, ts    | reactjs, nextjs, expressjs | —             |
+| `--commitlint`                | Adds Commitlint and Husky hooks for conventional commits.                              |         Yes | js, ts    | reactjs, nextjs, expressjs | —             |
+| `--shadcn`                    | Installs shadcn UI, copies Vite config and runs `shadcn init`. (TypeScript only).      |          No | ts        | reactjs, nextjs            | `tailwindcss` |
+| `--prisma`                    | Adds Prisma ORM scaffold and installs `@prisma/client`. (TypeScript + Next.js).        |          No | ts        | nextjs                     | —             |
+| `--authjs`, `--auth`          | Adds Auth.js (next-auth) templates and runs `npx auth secret`. (TypeScript + Next.js). |          No | ts        | nextjs                     | `prisma`      |
+| `--zod`                       | Adds Zod validation templates.                                                         |          No | ts        | reactjs, nextjs            | —             |
+| `--zustand`                   | Adds Zustand state store templates (JS/TS variants available).                         |          No | ts        | reactjs, nextjs            | —             |
+
+Notes:
+
+- Flags will be validated at runtime — if a tool requires TypeScript or a
+  specific framework and the provided flags don't match, the CLI will exit with
+  an error explaining the missing requirement.
+- The `--tools` meta-flag will enable the recommended tools (`tailwindcss`,
+  `eslint`, `prettier`, `commitlint`) unless you explicitly pass other tool
+  flags.
+- `--no-tools` disables all automatic tool installs.
+
+### Templates included
+
+The `templates/` folder contains template files copied into generated projects
+when tools are enabled. Major template groups:
+
+- `commitlint/` — commitlint configuration
+- `husky/` — pre-configured Husky hooks (`pre-commit`, `commit-msg`)
+- `prettier/` — `.prettierrc` and `.prettierignore`
+- `tailwind/` — `vite.config` snippets and `index.css` bootstrap
+- `shadcn-vite/` — Vite config and tsconfig snippets to support shadcn UI
+- `prisma/` — `prisma` config and `schema.prisma` starter
+- `authjs/` — example Auth.js/next-auth files and `.env` example
+- `express-ts/` — an Express TypeScript starter used when `--express` is chosen
+- `zod/` — example `validator.ts` and helper files
+- `zustand/` — JS and TS store example implementations
+
+If you add new tools in `inikit.config.ts`, the CLI will automatically expose
+`--<baseName>` flags and include them in the interactive prompt options (via
+`tli.ts`).
+
+## ⚙️ How the CLI works (behind the scenes)
+
+High-level flow when running `inikit` (interactive or non-interactive):
+
+1. Validate and parse flags (commander). Conflicting flags are rejected (e.g.
+   `--next` vs `--react`).
+2. Validate the project name using `validateProjectName` (`utils.ts`).
+3. If interactive, prompt for framework, language, and dev tools (`tli.ts`).
+4. Create the base project depending on the framework:
+
+- Next.js: runs `npx create-next-app` (with `--ts` / `--js`, `--tailwind` when
+  requested).
+- React (Vite): runs `npx create-vite` with `react` or `react-ts` template.
+- Express (TypeScript): copies the `templates/express-ts` starter and installs
+  its dependencies.
+
+5. For each selected tool, run the corresponding helper in `utils.ts` which
+   usually:
+
+- Installs npm packages (dev or runtime)
+- Copies template files from `templates/<tool>` into the new project
+- Runs additional CLI helpers (for example: `npx shadcn init`,
+  `npx prisma generate`, `npx auth secret`, `npx husky init`).
+
+6. Initialize Git (unless `--no-git` was passed).
+7. Print a success message and exit.
+
+Notes & edge cases:
+
+- Tools are validated against `language` and `framework` requirements defined in
+  `inikit.config.ts`. If a tool requires TypeScript or a specific framework and
+  the flags don't match, the CLI exits with a clear error.
+- When running with `--tools`, the CLI will enable all `recommended: true` tools
+  (see `inikit.config.ts`). You can override that by passing individual tool
+  flags.
+- Express currently relies on a TypeScript starter; the code forces `typescript`
+  for Express-created projects (see `index.ts`).
+- The CLI uses `execa` to run external commands; these subprocesses will emit
+  output to the terminal (e.g., `npx create-next-app`, `npm install`).
 
 ## 🏗️ Local Development
 
@@ -192,25 +286,28 @@ npm unlink -g inikit
 
 ### Available Scripts
 
-| Script                 | Description                                 |
-| ---------------------- | ------------------------------------------- |
-| `npm run dev`          | Run the CLI in development mode with `tsx`  |
-| `npm run build`        | Build the project for production            |
-| `npm run lint`         | Run ESLint to check for code issues         |
-| `npm run lint:fix`     | Auto-fix ESLint issues where possible       |
-| `npm run format`       | Format code with Prettier                   |
-| `npm run format:check` | Check if code is properly formatted         |
-| `npm run clean`        | Remove the `dist` directory                 |
-| `npm run deploy`       | Build and publish to npm (maintainers only) |
+| Script                 | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| `npm run dev`          | Run the CLI in development mode with `tsx`                           |
+| `npm run build`        | Build the project for production                                     |
+| `npm run lint`         | Run ESLint to check for code issues                                  |
+| `npm run lint:fix`     | Auto-fix ESLint issues where possible                                |
+| `npm run format`       | Format code with Prettier                                            |
+| `npm run format:check` | Check if code is properly formatted                                  |
+| `npm run clean`        | Remove the `dist` directory                                          |
+| `npm run deploy`       | Build and publish to npm (maintainers only)                          |
+| `npm run prepare`      | Run `husky` prepare script to set up git hooks (used by CI/prepare). |
 
 ### Project Structure
 
 ```text
 Inikit/
 ├── index.ts              # Main CLI entry point
-├── utils.ts              # Core utility functions
+├── tli.ts                # Interactive prompt helpers
+├── utils.ts              # Core utility functions (commands to scaffold and add tools)
+├── inikit.config.ts      # Tool configuration (defines flags, requirements, and templates)
 ├── package.json          # Project configuration
-├── templates/            # Template files for different tools
+├── templates/            # Template files for different tools (copied into generated projects)
 │   ├── commitlint/       # Commitlint configuration
 │   ├── husky/            # Git hooks
 │   ├── prettier/         # Prettier configuration
@@ -283,6 +380,13 @@ report security vulnerabilities through public GitHub issues.
 - **Maintained**: ✅ Actively maintained
 - **Node.js**: 18.0+ required
 
+### Key dependencies
+
+- Runtime: `@clack/prompts` (interactive prompts), `chalk` (colors), `commander`
+  (CLI parsing), `execa` (shell commands), `tsx` (dev runner)
+- Dev: `eslint`, `prettier`, `husky`, `@commitlint/cli`,
+  `@commitlint/config-conventional`, `typescript`
+
 ## 🗺️ Roadmap
 
 We're continuously working to improve Inikit. Here's what's on our radar:
@@ -292,7 +396,7 @@ We're continuously working to improve Inikit. Here's what's on our radar:
 - [ ] **Package Managers**: Yarn, pnpm support
 - [ ] **Templates**: More starter templates
 - [ ] **CI/CD**: GitHub Actions, GitLab CI templates
-- [ ] **Database**: Prisma, Drizzle integration options
+- [ ] **Database**: Drizzle integration options
 - [ ] **UI Libraries**: More component library options
 
 Want to contribute to any of these? We'd love your help!
